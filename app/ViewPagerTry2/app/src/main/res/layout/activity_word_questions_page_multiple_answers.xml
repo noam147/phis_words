@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="ltr"
+    tools:context="ExercisesPages.WordQuestionsPageMultipleAnswers">
+
+
+    <TextView
+        android:id="@+id/questionTextView"
+        android:layout_width="289dp"
+        android:layout_height="200dp"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="before"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.169" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="400dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/answerButton1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="answerButtonClicked"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/answerButton2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="answerButtonClicked"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/answerButton3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="answerButtonClicked"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/answerButton4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="answerButtonClicked"
+            android:text="Button" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:background="@null"
+        android:onClick="exitImgButtonClick4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.909"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_close_24" />
+
+    <TextView
+        android:id="@+id/questionsCounterTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+        app:layout_constraintHorizontal_bias="0.02"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/audioWordImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="whenAudioImgButtonClicked"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toStartOf="@+id/questionTextView"
+        app:layout_constraintHorizontal_bias="0.448"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/questionsCounterTextView"
+        app:layout_constraintVertical_bias="0.15"
+        app:srcCompat="@drawable/baseline_play_audio_img_24" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
