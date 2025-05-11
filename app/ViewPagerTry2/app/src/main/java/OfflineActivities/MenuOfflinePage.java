@@ -170,29 +170,9 @@ public class MenuOfflinePage extends AppCompatActivity {
     }
     public void markedWordButtonClicked(View view)
     {
-        //need to cancel the buttons in the sorting page
-        //maybe need fragment?
         Intent intent = new Intent(MenuOfflinePage.this, SortingWordsPage.class);
         intent.putExtra("action", OperationsAndOtherUsefull.MARKED_WORDS_ACTION);
-
-        float xPosition = view.getX();
-        float yPosition = view.getY();
-
-        float endX = shieldImageView.getX()+shieldImageView.getWidth()/2;
-        float endY = shieldImageView.getY()+shieldImageView.getHeight()/2;
-
-        float radios = 50;
-
-
-        ConstraintLayout layout = findViewById(R.id.main);
-        //XpPointsAnimations.animateAndAddXpPoints(40,this,layout,xPosition,yPosition,endX,endY);
-
-
-
-
-        //do not want this to work - full of bugs
         startActivity(intent);
-
     }
     private void setListernsToShopButtons()
     {

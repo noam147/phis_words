@@ -1,12 +1,17 @@
 package NewViews;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.view.View;
 
 import com.example.viewpagertry2.OperationsAndOtherUsefull;
 import com.example.viewpagertry2.R;
+import com.example.viewpagertry2.UnitAndCategoryOfWord;
 
 import ExercisesPages.AfterAnswerQuestionDetails;
+import OfflineActivities.SeacrhWordInDbActivity;
+import OfflineActivities.SortingWordsPage;
 
 public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton {
 
@@ -18,34 +23,32 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
         this.wordProperties = wordProperties;
         putStars2();
     }
-    /*private void putStars() {
-        LinearLayout starLayout = new LinearLayout(context);
-        starLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-        // Create the first star ImageView
-        ImageView star1 = new ImageView(context);
-        star1.setImageResource(R.drawable.baseline_full_star_24);
+    @Override
+    public boolean performClick() {
+        // Call super.performClick() first.
+        boolean handledBySuper = super.performClick();
 
-        // Create the second star ImageView
-        ImageView star2 = new ImageView(context);
-        star2.setImageResource(R.drawable.baseline_full_star_24);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(20, 0, 0, 0); // Add margin to the second star
-        star2.setLayoutParams(params);
+        String word = this.wordProperties.getQuestionDetails().getWordProperties().getWord();
+        int wordId = this.wordProperties.getQuestionDetails().getWordProperties().getWord_id();
+        int numOfStars= this.wordProperties.getQuestionDetails().getUserDetailsOnWords().getAmountOfStars();
 
-        // Add stars to the layout
-        starLayout.addView(star1);
-        starLayout.addView(star2);
+        UnitAndCategoryOfWord unitAndC = new UnitAndCategoryOfWord(wordId);
+        Intent intent = new Intent(this.getContext(), SortingWordsPage.class);
+        intent.putExtra("unit",unitAndC.getUnit());
+        intent.putExtra("category",unitAndC.getCategory());
+        int finalAction = numOfStars;
+        if (finalAction > OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS)
+        {
+            finalAction = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
+        }
+        intent.putExtra("action",finalAction+2);//TODO change
+        intent.putExtra("wordToMark",word);
+        this.context.startActivity(intent);
 
-        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
+        return handledBySuper;
+    }
 
-        // Add the star layout to the button
-        this.addView(starLayout, buttonLayoutParams);
-    }*/
     private void putStars2()
     {
         // finalImg;
