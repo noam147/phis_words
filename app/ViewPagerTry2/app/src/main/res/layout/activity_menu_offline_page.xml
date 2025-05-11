@@ -8,6 +8,24 @@
     android:layoutDirection="ltr"
     tools:context="OfflineActivities.MenuOfflinePage">
 
+    <TextView
+        android:id="@+id/daily_word_textView"
+        android:layout_width="155dp"
+        android:layout_height="130dp"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="No internet connection"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.499" />
+
     <Button
         android:id="@+id/orgenizeWordsButtonMenu"
         android:layout_width="wrap_content"
