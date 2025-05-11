@@ -19,7 +19,11 @@ import com.example.viewpagertry2.MakeViewPlayAudio;
 import com.example.viewpagertry2.OperationsAndOtherUsefull;
 import com.example.viewpagertry2.R;
 import com.example.viewpagertry2.XpPointsAnimations;
+import com.google.gson.Gson;
 
+import API.API_Handler;
+import API.DailyWord;
+import API.ReqCallback;
 import NewViews.TextProgressBar;
 import files.HistoryOfUnitAndCategoryPrefs;
 import files.UnitAndCaetogryHistoryHelper;
@@ -55,9 +59,36 @@ public class MenuOfflinePage extends AppCompatActivity {
         });
         onStartPage();
 
-
+        get_daily_word();
         MakeViewPlayAudio.playRecording(this,"composeapptry2melody.mp3",true);
         //XpPointsTracker.resetAmount(this);
+    }
+    private void get_daily_word()
+    {
+        TextView daily_text = findViewById(R.id.daily_word_textView);
+        API_Handler.sendGetRequest("http://13.51.79.222:15555/daily_word", new ReqCallback() {
+            @Override
+            public void onSuccess(String response) {
+                String a = "hi";
+                Gson gson = new Gson();
+                try {
+                    DailyWord word_meaning = gson.fromJson(response, DailyWord.class);
+                    daily_text.setText(word_meaning.word+": "+word_meaning.meaning);
+                }
+                catch (Exception e)
+                {
+                    //pass
+                }
+
+
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                int a =0;
+            }
+        });
     }
     public void RankImageClicked(View view)
     {

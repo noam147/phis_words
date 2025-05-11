@@ -37,7 +37,7 @@ import ExercisesPages.WordQuestionsPageMultipleAnswers;
 import files.HistoryOfUnitAndCategoryPrefs;
 
 public class SortingWordsPage extends AppCompatActivity {
-
+    private int KEEP_UNIT_AND_CATEGORY_AS_IS = -1;
 
     private boolean isUserWantMeanings = true;
     private int currAction;
@@ -66,7 +66,10 @@ public class SortingWordsPage extends AppCompatActivity {
         unit = intent.getIntExtra("unit", 1);
         wordToMark = intent.getStringExtra("wordToMark");
         category = intent.getIntExtra("category", 1);
-        HistoryOfUnitAndCategoryPrefs.updateUnitAndCategory(this,category,unit);
+        if(currAction != OperationsAndOtherUsefull.MARKED_WORDS_ACTION)
+        {
+            HistoryOfUnitAndCategoryPrefs.updateUnitAndCategory(this,category,unit);
+        }
         isEnglish = intent.getBooleanExtra("isEnglish", true);
         isUserWantMeanings = intent.getBooleanExtra("isUserWantMeanings", true);
     }
@@ -100,6 +103,9 @@ public class SortingWordsPage extends AppCompatActivity {
         if(currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION)
         {
             hide_buttons();
+            //when the marked - we so not want to interfare with the unit and category
+            this.unit = KEEP_UNIT_AND_CATEGORY_AS_IS;
+            this.category = KEEP_UNIT_AND_CATEGORY_AS_IS;
             words = dbManager.getMarkedWords();
         }
         else
@@ -200,8 +206,11 @@ public class SortingWordsPage extends AppCompatActivity {
             //if this in marked words just get the current words...
             intent.putExtra("questions",words);
         }
-        intent.putExtra("unit", unit);
-        intent.putExtra("category", category);
+        else
+        {
+            intent.putExtra("unit", unit);
+            intent.putExtra("category", category);
+        }
         intent.putExtra("isEnglish", isEnglish);
         intent.putExtra("action",this.currAction);
         // intent.putExtra("action",currAction);
@@ -273,8 +282,11 @@ public class SortingWordsPage extends AppCompatActivity {
     {
         intent.putExtra("isEnglish", isEnglish);
         intent.putExtra("isCategoryChoice",true);
-        intent.putExtra("unit", unit);
-        intent.putExtra("category", category);
+        if(unit != KEEP_UNIT_AND_CATEGORY_AS_IS && category != KEEP_UNIT_AND_CATEGORY_AS_IS)
+        {
+            intent.putExtra("unit", unit);
+            intent.putExtra("category", category);
+        }
         intent.putExtra("isUserWantMeanings",this.isUserWantMeanings);
     }
     public void wordsThatUserDOESNTKnowButtonClicked(View view)
