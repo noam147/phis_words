@@ -98,7 +98,7 @@ public class MenuOfflinePage extends AppCompatActivity {
 
     }
 
-    private void progressBar()
+    private void setProgressBar()
     {
         TextProgressBar progressBar = findViewById(R.id.progressBar);
         TextView levelTextView = findViewById(R.id.currentLevelTextView);
@@ -126,7 +126,7 @@ public class MenuOfflinePage extends AppCompatActivity {
     }
     private void onStartPage()
     {
-        progressBar();
+        setProgressBar();
         Button orgenizeBtn = findViewById(R.id.orgenizeWordsButtonMenu);
         int amountOfWordsKnow,amountOfAllWords;
         amountOfAllWords =  dbManager.getCountOfWords(true);
@@ -222,6 +222,7 @@ public class MenuOfflinePage extends AppCompatActivity {
     public void resetPointsBtnClicked(View view)
     {
         XpPointsTracker.resetAmount(this);
+        setProgressBar();
     }
     private void shopButtonClicked(View view,int amount)
     {
@@ -231,5 +232,6 @@ public class MenuOfflinePage extends AppCompatActivity {
         float xPosition = view.getX();
         float yPosition = view.getY();
         XpPointsAnimations.animateAndAddXpPoints(amount,view.getContext(),layout,xPosition,yPosition,endX,endY);
+        setProgressBar();
     }
 }
