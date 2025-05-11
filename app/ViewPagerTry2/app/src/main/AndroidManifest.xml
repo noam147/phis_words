@@ -13,7 +13,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/icoc_app_launcher_foreground"
-        android:label="@string/app_name"
+        android:label="מילים 800+"
         android:roundIcon="@mipmap/icoc_app_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ViewPagerTry2"

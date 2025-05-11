@@ -17,90 +17,94 @@
         android:padding="16dp"
         android:text="No internet connection"
         android:textColor="@android:color/black"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.937"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499" />
+        app:layout_constraintVertical_bias="0.051" />
 
     <Button
         android:id="@+id/orgenizeWordsButtonMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="162dp"
+        android:layout_height="63dp"
         android:onClick="orgenizeButtonClicked"
-        android:text="Orgenize Words"
+        android:text="Sort Words"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.253"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.483" />
+        app:layout_constraintVertical_bias="0.317" />
 
     <Button
         android:id="@+id/gameButton"
-        android:layout_width="198dp"
-        android:layout_height="40dp"
+        android:layout_width="178dp"
+        android:layout_height="57dp"
+        android:backgroundTint="#62aFEA"
         android:onClick="gameButtonClicked"
-        android:text="game"
-        app:layout_constraintBottom_toTopOf="@+id/orgenizeWordsButtonMenu"
+        android:text="4 Choices Game"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.924"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.681" />
 
     <Button
         android:id="@+id/button5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="159dp"
+        android:layout_height="68dp"
         android:onClick="searchWordsButtonClicked"
-        android:text="searchWords"
-        app:layout_constraintBottom_toTopOf="@+id/orgenizeWordsButtonMenu"
+        android:text="Search Word"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.94"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gameButton"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.439" />
 
     <ImageButton
         android:id="@+id/imageButton5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="188dp"
+        android:layout_marginTop="152dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.066"
+        app:layout_constraintHorizontal_bias="0.044"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/baseline_settings_24" />
 
     <Button
         android:id="@+id/writeGameButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="68dp"
         android:onClick="writeGameButtonClicked"
-        android:text="Write Game"
-        app:layout_constraintBottom_toTopOf="@+id/gameButton"
+        android:backgroundTint="#ff8FEA"
+        android:textColor="#000000"
+        android:text="Writing Game"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.787"
-        app:layout_constraintStart_toEndOf="@+id/imageButton5"
+        app:layout_constraintHorizontal_bias="0.131"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.567" />
+        app:layout_constraintVertical_bias="0.683" />
 
     <Button
         android:id="@+id/markedWordsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="159dp"
+        android:layout_height="68dp"
         android:onClick="markedWordButtonClicked"
-        android:text="markedWords"
+        android:text="Marked Words"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gameButton"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.439" />
 
     <ImageView
         android:id="@+id/progressRankImageView"
@@ -184,10 +188,10 @@
         android:text="Reset Points"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.703"
+        app:layout_constraintHorizontal_bias="0.897"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.874" />
+        app:layout_constraintVertical_bias="0.857" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
