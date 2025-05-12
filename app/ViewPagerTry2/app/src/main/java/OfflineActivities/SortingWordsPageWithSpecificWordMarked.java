@@ -3,23 +3,26 @@ package OfflineActivities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ScrollView;
 
 import com.example.viewpagertry2.FinalWordProperties;
+import com.example.viewpagertry2.OperationsAndOtherUsefull;
 import com.example.viewpagertry2.R;
 import NewViews.WordButton;
 
 import java.util.ArrayList;import android.view.ViewGroup;
 
 public class SortingWordsPageWithSpecificWordMarked extends SortingWordsPage {
-
     private String wordToMark;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sorting_words_page); // Set parent layout
         getLayoutInflater().inflate(R.layout.activity_sorting_words_page_with_specific_word_marked, (ViewGroup) findViewById(R.id.main), true);
         wordToMark = getIntent().getStringExtra("wordToMark");
+
     }
     @Override
     protected void setIntentData(Intent intent) {
@@ -48,6 +51,5 @@ public class SortingWordsPageWithSpecificWordMarked extends SortingWordsPage {
 
 
         return wordButtonArrayList;
-
     }
 }

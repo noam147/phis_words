@@ -14,6 +14,9 @@ import java.util.List;
 import ExercisesPages.Question;
 
 public class OperationsAndOtherUsefull {
+    public static final int MENU_INTENT_ID = 1;
+    public static final int SUMMERIZE_MULTIPLE_ANSWERS_QUESIOTNS_INTENT_ID = 2;
+
     public static final int WORDS_PER_UNIT = 50;
     public static final int NUM_OF_UNITS_IN_EACH_CATEGORY = 10;
 

@@ -14,7 +14,6 @@ import OfflineActivities.SeacrhWordInDbActivity;
 import OfflineActivities.SortingWordsPage;
 
 public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton {
-
     Context context;
     AfterAnswerQuestionDetails wordProperties;
     public StatisticsButton(Context context,AfterAnswerQuestionDetails wordProperties) {
@@ -44,6 +43,8 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
         }
         intent.putExtra("action",finalAction+2);//TODO change
         intent.putExtra("wordToMark",word);
+        //statistics is just for the intent for summrize
+        intent.putExtra("intentId",OperationsAndOtherUsefull.SUMMERIZE_MULTIPLE_ANSWERS_QUESIOTNS_INTENT_ID);
         this.context.startActivity(intent);
 
         return handledBySuper;

@@ -37,6 +37,8 @@ import ExercisesPages.WordQuestionsPageMultipleAnswers;
 import files.HistoryOfUnitAndCategoryPrefs;
 
 public class SortingWordsPage extends AppCompatActivity {
+    private int previous_intent_id;
+
     private int KEEP_UNIT_AND_CATEGORY_AS_IS = -1;
 
     private boolean isUserWantMeanings = true;
@@ -72,6 +74,7 @@ public class SortingWordsPage extends AppCompatActivity {
         }
         isEnglish = intent.getBooleanExtra("isEnglish", true);
         isUserWantMeanings = intent.getBooleanExtra("isUserWantMeanings", true);
+        previous_intent_id = getIntent().getIntExtra("intentId", OperationsAndOtherUsefull.MENU_INTENT_ID);
     }
 
     @Override
@@ -433,9 +436,18 @@ public class SortingWordsPage extends AppCompatActivity {
     }
     public void exitImgButtonClick3(View view)
     {
-        Intent intent = new Intent(SortingWordsPage.this, MenuOfflinePage.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);//clear all previous pages
-        startActivity(intent);
+        Intent intent = null;
+        if(previous_intent_id == OperationsAndOtherUsefull.MENU_INTENT_ID)
+        {
+            intent = new Intent(SortingWordsPage.this, MenuOfflinePage.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);//clear all previous pages
+            startActivity(intent);
+        }
+        else if(previous_intent_id == OperationsAndOtherUsefull.SUMMERIZE_MULTIPLE_ANSWERS_QUESIOTNS_INTENT_ID)
+        {
+            //just return to the summerize. do not intrevene.
+            this.finish();
+        }
 
     }
 }

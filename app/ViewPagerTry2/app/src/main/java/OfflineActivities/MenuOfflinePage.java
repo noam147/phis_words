@@ -202,6 +202,8 @@ public class MenuOfflinePage extends AppCompatActivity {
     public void resetPointsBtnClicked(View view)
     {
         XpPointsTracker.resetAmount(this);
+        TextView curr_level = findViewById(R.id.currentLevelTextView);
+        curr_level.setVisibility(View.VISIBLE);//for if the previous shield was the max one - that in it the curr level is unvisible
         setProgressBar();
     }
     private void shopButtonClicked(View view,int amount)
