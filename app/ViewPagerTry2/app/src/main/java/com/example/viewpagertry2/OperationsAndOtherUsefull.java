@@ -77,9 +77,14 @@ public class OperationsAndOtherUsefull {
                 //on do not decide
                 wordsAfterCheckingList.add(words[i]);
             }
-            if (check(currAmountOfStars, 1, action, OperationsAndOtherUsefull.DO_KNOW_WORDS) || check(currAmountOfStars, 2, action, OperationsAndOtherUsefull.DO_KNOW_WORDS)) {
+            if (check(currAmountOfStars, 1, action, OperationsAndOtherUsefull.DO_KNOW_WORDS)
+                    || check(currAmountOfStars, 2, action, OperationsAndOtherUsefull.DO_KNOW_WORDS)) {
                 //on do know - there is one star or two option
                 wordsAfterCheckingList.add(words[i]);
+            }
+            if(currAmountOfStars == 2)
+            {
+                int a=0;
             }
 
         }

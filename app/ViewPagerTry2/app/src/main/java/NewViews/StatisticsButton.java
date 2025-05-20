@@ -25,7 +25,6 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
 
     @Override
     public boolean performClick() {
-        // Call super.performClick() first.
         boolean handledBySuper = super.performClick();
 
         String word = this.wordProperties.getQuestionDetails().getWordProperties().getWord();
@@ -54,10 +53,6 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
     {
         // finalImg;
         int amountOfStars = wordProperties.getQuestionDetails().getUserDetailsOnWords().getAmountOfStars();
-        if(amountOfStars == OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS)
-        {
-
-        }
         if(amountOfStars > 0)
         {
             this.post(() -> {
@@ -73,30 +68,11 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
                 {
                     finalImg = getResources().getDrawable(R.drawable.three_stars);
                 }
-
-
-
                 // Resize drawable to match the button's height
                 finalImg = OperationsAndOtherUsefull.resizeDrawable(desiredHeight+30, desiredHeight, finalImg);
                 // Set the resized drawable to the left of the button text
                 this.setCompoundDrawables(finalImg, null, null, null);
-
-                // Optionally, set padding if needed
-                //this.setCompoundDrawablePadding(20);
             });
         }
-    }
-    private void putStars()
-    {
-
-        // Set the first star drawable on the left
-        if(wordProperties.getIsUserRight())
-            this.setCompoundDrawablesWithIntrinsicBounds(R.drawable.baseline_full_star_24, 0, 0, 0);
-        else
-        {
-            this.setCompoundDrawablesWithIntrinsicBounds(R.drawable.baseline_empty_star_outline_24,0,0,0);
-        }
-        this.setCompoundDrawablePadding(20); // Adjust the padding value as needed
-
     }
 }

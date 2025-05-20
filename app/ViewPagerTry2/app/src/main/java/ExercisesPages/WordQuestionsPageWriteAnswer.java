@@ -53,7 +53,11 @@ public class WordQuestionsPageWriteAnswer extends BaseActivityForGameQuestions {
         m_continueBtn.setVisibility(View.INVISIBLE);
         getVarsAtStart();
         setEnterKeyListener(m_userAnswerEditText);
+        m_questionTextView.setTextSize(23);
         m_questionTextView.setText(this.m_questions[m_counter].getWordProperties().getWord());
+
+        EditText solution  = findViewById(R.id.solutionMeaningEditText);
+        solution.setEnabled(false);
     }
     private void setEnterKeyListener(EditText editText) {
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -182,6 +186,7 @@ private void onAnswerClicked(View view)
   }
   public void continueButtonClicked(View view,boolean isTrue)
   {
+
       if(isTrue)
       {
           super.whenUserRight();
@@ -192,9 +197,12 @@ private void onAnswerClicked(View view)
       m_overrideBtn.setVisibility(View.INVISIBLE);
       m_continueBtn.setVisibility(View.INVISIBLE);
       updateToNextQuestion();
+
   }
   private void updateToNextQuestion()
   {
+      m_answerBtn.setVisibility(View.VISIBLE);
+      this.m_userAnswerEditText.setEnabled(true);
       m_answerBtn.setBackgroundColor(Color.BLACK);
       this.m_counter++;
       if(m_counter == this.m_questions.length)
@@ -213,7 +221,10 @@ private void onAnswerClicked(View view)
   private void whenUserAnsweredWrong()
   {
 
-      m_answerBtn.setBackgroundColor(Color.RED);
+      //m_answerBtn.setBackgroundColor(Color.RED);
+      super.activateVibrator();
+      m_userAnswerEditText.setEnabled(false);
+      m_answerBtn.setVisibility(View.GONE);
       m_overrideBtn.setVisibility(View.VISIBLE);
       m_overrideBtn.setText("Override - I Was Correct.");
       m_continueBtn.setVisibility(View.VISIBLE);

@@ -77,7 +77,7 @@ public class BaseActivityForGameQuestions extends AppCompatActivity {
         dbManager.openDb();
 
     }
-    private void activateVibrator()
+    protected void activateVibrator()
     {
         /*//for later - page to set this
         Intent intent = new Intent("android.intent.action.SET_ALARM");

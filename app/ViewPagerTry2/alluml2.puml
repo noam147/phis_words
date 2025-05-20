@@ -1,0 +1,488 @@
+@startuml
+class WordQuestionsPageMultipleAnswers {
+- Button[] m_listOfAnswerButtons
+# void onCreate(Bundle)
+- void updateQuestionsTrackerTextView()
++ Button findBtnWithRightAnswer(Button[])
++ void answerButtonClicked(View)
+- void changeToNextQuestion()
+- void getVarsAtStart()
+- Question[] getQuestionsArr()
+- void changeColorsOfButtons()
+- void disableAnswerButtonsTouch()
+- void enAbleAnswerButtonsTouch()
++ void exitImgButtonClick4(View)
+}
+
+
+class ButtonDraggableFuncs {
+- {static} int JUST_RIGHT_CODE
+- {static} int JUST_LEFT_CODE
+- {static} int RightMaxLocation
+- {static} int LeftMaxLocation
+- float dX
+- float startXLocation
+- {static} boolean isBtnInProcses
+- int lastAction
+- boolean isDragging
+- {static} float initialTouchX
+- {static} float initialTouchY
+- {static} int DRAG_THRESHOLD
+- Button[] m_listOfBtns
++ void makeButtonDraggableOnXAxsis(WordButton,int,DBManager,int[],LockableScrollView)
+- {static} void changeBtnName(Button,boolean)
++ {static} void makeAnimationOfButtonGoingRight(View,boolean)
+}
+
+
+class XpPointsTracker {
++ {static} String PROFRESS_FILE_NAME
+- {static} int[][] SHIELDS_LEVELS_AMOUNT
++ {static} int NUMBER_OF_LEVELS_IN_EACH_SHIELD
++ {static} int[] ranksImagesIds
+- {static} int maxRankVal
+- {static} int levelCounter
+- {static} int shieldCounter
+- {static} int currentAmount
++ {static} int getCurrentAmount()
++ {static} int getCurrentLevel()
++ {static} int getCurrentRank()
++ {static} int getAmountForNextLevel()
++ {static} int getAmountForProgressBarNextLevel()
++ {static} void addOrSubToProgressBar2(int,Context)
+- {static} boolean isLeveledUpRightNow(int)
+- {static} boolean isRankedUpRightNow(int)
++ {static} void resetAmount(Context)
++ {static} void setCountersAtStart(Context)
+- {static} void writeTofileInFormat(Context,int,int,int)
++ {static} ImageView getImgOfCurrentRank2(Context,ImageView)
+}
+
+
+class HistoryUserFile {
+}
+class UnitAndCategoryOfWord {
+- int unit
+- int category
+- int wordId
+- void setUnitAndCategory()
++ int getUnit()
++ int getCategory()
+}
+
+
+class FileHelper {
++ {static} void writeToFile(Context,String,String)
++ {static} String readFromFile(Context,String)
+}
+
+class HistoryOfUnitAndCategoryPrefs {
+- {static} String PREFS_NAME
+- {static} String KEY_CATEGORY_INDEX
+- {static} String KEY_UNIT_INDEX
+- {static} int DEFAULT_CATEGORY_INDEX
+- {static} int DEFAULT_UNIT_INDEX
++ {static} UnitAndCaetogryHistoryHelper getUnitAndCategory(Context)
++ {static} void updateUnitAndCategory(Context,int,int)
++ {static} void clearHistory(Context)
+}
+
+
+class Question {
+- String[] answers
++ String[] getAnswers()
+}
+
+
+class WordQuestionsPageWriteAnswer {
+- Button m_overrideBtn
+- Button m_answerBtn
+- Button m_continueBtn
+- EditText m_userAnswerEditText
+- TextView m_questionTextView
+# void onCreate(Bundle)
+- void setEnterKeyListener(EditText)
+- void getVarsAtStart()
++ void exitImgBtnWriteAnswerClicked(View)
+- void onAnswerClicked(View)
+- void continueButtonClicked()
+- String getTextFromAnswerTextEdit()
++ void setSendBtnClicked(View)
+- void whenUserAnsweredRight()
++ void overrideButtonClicked(View)
++ void continueButtonClicked(View)
++ void continueButtonClicked(View,boolean)
+- void updateToNextQuestion()
+- void whenUserAnsweredWrong()
+- String[] getAllMeaningsOfWords(String)
+- boolean answerIsInMeaning(String,String)
+}
+
+
+class UnitAndCaetogryHistoryHelper {
++ int categoryIndex
++ int unitIndex
++ int getCategoryIndex()
++ int getUnitIndex()
+}
+
+
+class BaseActivityForGameQuestions {
+# int m_amountOfQuestions
+# boolean m_isEnglish
+# int m_action
+# DBManager dbManager
+# int m_unit
+# int m_category
+# int m_counter
+# FinalWordProperties[] m_questions
+# ArrayList<AfterAnswerQuestionDetails> m_afterAnswerQuestionDetails
+# void onCreate(Bundle)
+# void putVarsIntoIntent(Intent)
+- void atStartOfExercisesPages()
+- void activateVibrator()
+- void updateDbWrongAnswer()
+- void updateDbRightAnswer()
++ void whenAudioImgButtonClicked(View)
+# void whenFinishQuestions()
+# void whenUserRight()
+# void whenUserWrong()
+}
+
+
+class SortingWordsPageWithSpecificWordMarked {
+- String wordToMark
+# void onCreate(Bundle)
+# void setIntentData(Intent)
+# ArrayList<WordButton> createButtons(FinalWordProperties[])
+}
+
+
+class XpPointsAnimations {
+- {static} void animateXpPoint(Context,ConstraintLayout,float,float,float,float,int)
++ {static} void animateAndAddXpPoints(int,Context,ConstraintLayout,float,float,float,float)
+}
+
+class TextProgressBar {
+- String text
+- Paint textPaint
+- void init()
++ void setText(String)
+# void onDraw(Canvas)
+}
+
+
+class LockableScrollView {
+- boolean scrollable
++ boolean onInterceptTouchEvent(MotionEvent)
++ boolean onTouchEvent(MotionEvent)
++ void setScrollingEnabled(boolean)
+}
+
+
+class StatisticsButton {
+~ Context context
+~ AfterAnswerQuestionDetails wordProperties
++ boolean performClick()
+- void putStars2()
+}
+
+
+class ShowRankProgressActivity {
+- ScrollView scrollView
+# void onCreate(Bundle)
++ void exitButtonShowRankClicked(View)
+- void setTextViewParams(TextView)
+- void animateShieldImg(int)
+- void createScreen()
+}
+
+
+class CategoryChooser {
+~ boolean isEnglish
+~ int currunit
+~ int currCategory
+~ DBManager dbManager
+~ int currAction
+# void onCreate(Bundle)
++ int getIntInAmountButtonText(View)
+- void setTextOnButtonWithCategoryChoice(Button,int)
+- void setTextOnButtonWithUnityChoice(Button,int)
+- void createButtons(int,boolean)
++ void exitImgButtonClick(View)
+}
+
+
+class WordButton {
+- DBManager dbManager
+- ImageButton imageButton
+- ImageButton playAudioImgButton
+- FinalWordProperties finalWordProperties
++ void setVisibility(int)
++ void setDbManager(DBManager)
++ void afterAddingToLayout()
+- void addbuttons2()
+- void addButtons()
+- void add_volume_img_display(RelativeLayout)
+- void addMarked(RelativeLayout)
++ FinalWordProperties getFinalWordProperties()
+}
+
+
+interface ReqCallback {
+~ void onSuccess(String)
+~ void onFailure(Exception)
+}
+
+class SortingWordsPage {
+- int previous_intent_id
+- int KEEP_UNIT_AND_CATEGORY_AS_IS
+- boolean isUserWantMeanings
+- int currAction
+- boolean isEnglish
+- int unit
+- int category
+- DBManager dbManager
+- String wordToMark
+- FinalWordProperties[] words
+- int lenKnowWrods
+- int lenDONOTKnowWords
+- int lenDONOTDECIDEWords
+# void setIntentData(Intent)
+# void onCreate(Bundle)
+- void setVeryTopOfPhoneColor()
+- void hide_buttons()
++ void setButtonsNames()
++ void categoryChooseButtonClicked(View)
+- void whenSwitchChange()
++ void TestOnSpecifWordsInUnitButtonClicked(View)
++ void TextButtonClicked(View)
++ void unitChooseButtonClicked(View)
+- void setRedBackroundHieght()
++ Button findChoseButton()
+- void putIntoIntent(Intent)
++ void wordsThatUserDOESNTKnowButtonClicked(View)
++ void wordsThatUserKnowButtonClicked(View)
++ void orgnizeWordsButtonCLICKED(View)
+- void addLengthToKnowButtons(int)
+- boolean isButtonNeedToBeCreate(int)
+# ArrayList<WordButton> createButtons(FinalWordProperties[])
++ void exitImgButtonClick3(View)
+}
+
+
+class SeacrhWordInDbActivity {
+~ DBManager dbManager
+~ FinalWordProperties[] words
+~ String currRegexToSearch
+~ int currAmount
+# void onCreate(Bundle)
+- void addTextWatcher()
+- void afterTextChanges()
+- void createButtons(FinalWordProperties[])
+- void setListenerToMoreResultsButton(Button)
+- void setListenerToWordButton(WordButton)
+- void setVeryTopOfPhoneColor()
++ void exitImgButtonClick(View)
+}
+
+
+class DividerView {
+- int color
+- int thickness
+- int redPercentage
+- Paint paint
+- void init()
+# void onDraw(Canvas)
++ void setRedPercentage(int)
++ void setThickness(int)
++ void setColor(int)
+}
+
+
+class SummerizeMultipleAnswersQuestionsPage {
+- int intentOfExrecise
+- ArrayList<AfterAnswerQuestionDetails> afterAnswerQuestionDetails
+# void onCreate(Bundle)
+- void hm()
+- void addViewIntoLinear(View,boolean)
+- void createButton(boolean,AfterAnswerQuestionDetails)
+- FinalWordProperties[] getWordProArr(AfterAnswerQuestionDetails[])
+- void createButtons(AfterAnswerQuestionDetails[])
++ void exitImgButtonClick5(View)
+}
+
+
+class AfterAnswerQuestionDetails {
+- FinalWordProperties questionDetails
+- boolean isUserRight
++ FinalWordProperties getQuestionDetails()
++ boolean getIsUserRight()
+}
+
+
+class WordProperties {
+- String word
+- String meaning
+- int word_id
+- String origin_place
++ String getWord()
++ String getMeaning()
++ int getWord_id()
++ String getOrigin_place()
+}
+
+
+class UserDetailsOnWords {
+- String word
+- int amountOfStars
+- String knowledge_level
+- boolean isWordMark
++ String getWord()
++ int getAmountOfStars()
++ String getKnowledge_level()
++ boolean isWordMark()
++ void setWordMark(boolean)
++ void setAmountOfStars(int)
++ void setKnowledge_level(String)
+}
+
+
+class FinalWordProperties {
+- UserDetailsOnWords userDetailsOnWords
+- WordProperties wordProperties
++ UserDetailsOnWords getUserDetailsOnWords()
++ WordProperties getWordProperties()
+}
+
+
+class API_Handler {
++ {static} void sendGetRequest(String,ReqCallback)
+- {static} void executeRequest(OkHttpClient,Request,ReqCallback)
+}
+
+class DBManager {
+- {static} String DATABASE_NAME
+- {static} int DATABASE_VERSION
+- {static} String DATABASE_PATH
+- Context context
+- void copyDatabaseIfNeeded(boolean)
++ void onCreate(SQLiteDatabase)
++ void onUpgrade(SQLiteDatabase,int,int)
++ SQLiteDatabase openDb()
++ void closeDb()
+- int execCountCommand(String)
+- void execUpdateQuery(String)
++ void updateIsWordMarkedBasedOnWord(String,boolean)
++ void oppsiteWordMarkedBasedOnWord(String,boolean)
++ FinalWordProperties[] getMarkedWords()
+- void updateAmountOfStarsBasedOnWord(String,int)
+- void increaseKnowledeLevel(UserDetailsOnWords)
++ void updateAmountOfStarsAndKnowledge(String,boolean)
++ int getCountOfUnitsInACategory(boolean,int)
++ int getCountOfCategories(boolean)
++ int getCountOfWordsUserKnow()
++ int getCountOfWordsUserKnowInSpecificCategory(int)
++ int getCountOfWordsUserKnowBasedOnCategory(int,int)
++ int getCountOfWords(boolean)
+- WordProperties getWordPropetiesBasedOnWord(String)
+- UserDetailsOnWords getUserDetailsBasedOnWord(String)
+- FinalWordProperties[] execQueryOfBothTablesByUserDetailsValues(String,String[])
+- FinalWordProperties[] execQueryOfBothTables(String,String[])
+- WordProperties getWordPropertiesFromCursor(Cursor)
+- UserDetailsOnWords getUserDetailsFromCursor(Cursor)
++ FinalWordProperties[] searchWordsBasedOnStart(String,int)
++ void setWordAsKnowWord(String)
++ void setWordAsDoesNOTKnowWord(String)
++ String[] getThreeRandomAnswers(boolean,String)
++ FinalWordProperties[] getRandomEnglishWords(int,boolean)
++ FinalWordProperties[] getWordsOfUnit(int,int,boolean,int)
++ FinalWordProperties[] getWordsOfUnit(int,int,boolean)
+}
+
+
+class MakeViewPlayAudio {
++ {static} MediaPlayer mediaPlayer
++ {static} MediaPlayer mediaPlayerForWords
++ {static} void playRecordingOfWord(Context,int)
++ {static} void playRecording(Context,String,boolean)
+}
+
+
+class MenuOfflinePage {
+~ DBManager dbManager
+~ ImageView shieldImageView
+~ int BUCKET_AMOUNT
+~ int HANDFUL_AMOUNT
+# void onCreate(Bundle)
+- void get_daily_word()
++ void RankImageClicked(View)
+- void setProgressBar()
+- void onStartPage()
++ void gameButtonClicked(View)
++ void orgenizeButtonClicked(View)
++ void searchWordsButtonClicked(View)
++ void writeGameButtonClicked(View)
++ void markedWordButtonClicked(View)
+- void setListernsToShopButtons()
++ void resetPointsBtnClicked(View)
+- void shopButtonClicked(View,int)
+}
+
+
+class DailyWord {
++ String meaning
++ String word
+}
+
+class OperationsAndOtherUsefull {
++ {static} int MENU_INTENT_ID
++ {static} int SUMMERIZE_MULTIPLE_ANSWERS_QUESIOTNS_INTENT_ID
++ {static} int WORDS_PER_UNIT
++ {static} int NUM_OF_UNITS_IN_EACH_CATEGORY
++ {static} int MIN_KNOW_WORD_AMOUNT_OF_STARS
++ {static} int DID_NOT_SORTAMOUNT_OF_STARS
++ {static} int MAX_DO_NOT_KNOW_WORD_AMOUNT_OF_STARS
++ {static} int MIN_DO_NOT_KNOW_WORD_AMOUNT_OF_STARS
++ {static} int DO_NOT_KNOW_WORDS
++ {static} int DO_NOT_DECIDE_WORDS
++ {static} int DO_KNOW_WORDS
++ {static} int ALL_WORDS_ACTION
++ {static} int MARKED_WORDS_ACTION
++ {static} int AMOUNT_OF_WORDS_EACH_TIME_SEARCHING
++ {static} int BASE_AMOUNT_OF_QUESTIONS_IN_EXERCISE
++ {static} int getStartIdOfUnit(int,int)
++ {static} int getStartIdOfCategory(int)
++ {static} int getIntInButtonText(View)
++ {static} FinalWordProperties[] getWordsOfUnitByAction(int,int,boolean,int,DBManager)
++ {static} void shffuleArr(FinalWordProperties[])
+- {static} boolean check(int,int,int,int)
++ {static} Question[] getRandQuestions(boolean,FinalWordProperties[],DBManager)
++ {static} Drawable resizeDrawable(int,int,Drawable)
+}
+
+
+
+
+BaseActivityForGameQuestions <|-- WordQuestionsPageMultipleAnswers
+FinalWordProperties <|-- Question
+BaseActivityForGameQuestions <|-- WordQuestionsPageWriteAnswer
+AppCompatActivity <|-- BaseActivityForGameQuestions
+SortingWordsPage <|-- SortingWordsPageWithSpecificWordMarked
+ProgressBar <|-- TextProgressBar
+ScrollView <|-- LockableScrollView
+AppCompatButton <|-- StatisticsButton
+AppCompatActivity <|-- ShowRankProgressActivity
+AppCompatActivity <|-- CategoryChooser
+AppCompatButton <|-- WordButton
+AppCompatActivity <|-- SortingWordsPage
+AppCompatActivity <|-- SeacrhWordInDbActivity
+View <|-- DividerView
+AppCompatActivity <|-- SummerizeMultipleAnswersQuestionsPage
+Serializable <|.. AfterAnswerQuestionDetails
+Serializable <|.. WordProperties
+Serializable <|.. UserDetailsOnWords
+Serializable <|.. FinalWordProperties
+SQLiteOpenHelper <|-- DBManager
+AppCompatActivity <|-- MenuOfflinePage
+@enduml
