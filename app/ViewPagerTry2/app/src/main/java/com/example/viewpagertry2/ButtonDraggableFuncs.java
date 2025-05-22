@@ -16,79 +16,75 @@ import NewViews.LockableScrollView;
 import NewViews.WordButton;
 import files.XpPointsTracker;
 
-public class ButtonDraggableFuncs
-{
+/**
+ * This class provides functionality to make buttons draggable horizontally
+ * and handle actions based on the swipe direction. It is specifically designed
+ * for {@link WordButton}s within a learning application to categorize words
+ * as known or unknown.
+ */
+public class ButtonDraggableFuncs {
 
-    private static final int JUST_RIGHT_CODE =OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS;
+    private static final int JUST_RIGHT_CODE = OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS;
     private static final int JUST_LEFT_CODE = OperationsAndOtherUsefull.DO_KNOW_WORDS;
     private static final int RightMaxLocation = 400;
     private static final int LeftMaxLocation = -400;
     private float dX;
     private float startXLocation;
     private static boolean isBtnInProcses = false;
-    //private static int lastAction =-1;
-    private int lastAction =-1;//to each btn unicly
-    //
-    private boolean isDragging = false; // To track if dragging is in progress
+    private int lastAction = -1;
+    private boolean isDragging = false;
     private static float initialTouchX;
     private static float initialTouchY;
-    private static final int DRAG_THRESHOLD = 10; // Threshold for deciding drag vs scroll
+    private static final int DRAG_THRESHOLD = 10;
     private Button[] m_listOfBtns = null;
-    public ButtonDraggableFuncs()
-    {
 
+    /**
+     * Default constructor for the {@code ButtonDraggableFuncs} class.
+     */
+    public ButtonDraggableFuncs() {
+        // Empty constructor
     }
-    /*public ButtonDraggableFuncs(Button[] listOfBtns)
-    {
 
-        m_listOfBtns = listOfBtns;
-        resetXOfAllButtons();
-    }
-    private void resetXOfAllButtons()
-    {
-        for (Button btn:m_listOfBtns) {
-            btn.setX(startXLocation);
-        }
-    }*/
-    //can make this static - need to see whats more efficient
+    /**
+     * Makes a given {@link WordButton} draggable along the X-axis. When dragged
+     * beyond certain thresholds, it triggers actions to categorize the associated
+     * word as known or unknown in the database.
+     *
+     * @param btn               The {@link WordButton} to make draggable.
+     * @param currAction        The current action code associated with the button's category
+     * (e.g., {@link #JUST_RIGHT_CODE} or {@link #JUST_LEFT_CODE}).
+     * @param dbManager         An instance of {@link DBManager} to interact with the database.
+     * @param buttonsAndId      An array of integers representing the IDs of relevant buttons.
+     * It is expected to contain IDs related to the "know word" and
+     * "does not know word" categories, as well as the ID of the
+     * current button's category. The order is important and assumed
+     * to be [ID_LEFT_BUTTON, ID_CURRENT_BUTTON, ID_RIGHT_BUTTON].
+     * @param scrollViewOfButtons The {@link LockableScrollView} that contains the button.
+     * This is used to disable scrolling during the drag operation.
+     */
     public void makeButtonDraggableOnXAxsis(WordButton btn, int currAction, DBManager dbManager, int[] buttonsAndId, LockableScrollView scrollViewOfButtons) {
-
-        Context context= btn.getContext();
+        Context context = btn.getContext();
         String currentWord = btn.getFinalWordProperties().getWordProperties().getWord();
         btn.setOnTouchListener(new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                ViewGroup parent;
                 switch (event.getActionMasked()) {
-
                     case MotionEvent.ACTION_DOWN:
-                        // Initialize values for dragging
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
                         dX = view.getX() - event.getRawX();
                         startXLocation = view.getX();
                         lastAction = MotionEvent.ACTION_DOWN;
-
-                        // Disable the scroll view during drag
                         scrollViewOfButtons.setScrollingEnabled(false);
-                        isDragging = false; // Reset dragging state
-                        // Let the system handle the long click event
-                        return false; // Pass the event to the system for long click detection
-
+                        isDragging = false;
+                        return false;
                     case MotionEvent.ACTION_MOVE:
                         float deltaX = Math.abs(event.getRawX() - initialTouchX);
                         float deltaY = Math.abs(event.getRawY() - initialTouchY);
-
-                        // Determine if the user is swiping horizontally
                         if (deltaX + 80 > deltaY && deltaX > DRAG_THRESHOLD) {
                             isDragging = true;
-
-                            // Update the button's position during drag
                             float xCurr = event.getRawX() + dX;
                             view.setX(xCurr);
-
-                            // Handle swipe actions (color change, etc.)
                             if (view.getX() - startXLocation > RightMaxLocation && currAction != JUST_LEFT_CODE) {
                                 btn.setBackgroundColor(Color.GREEN);
                             } else if (view.getX() - startXLocation < LeftMaxLocation && currAction != JUST_RIGHT_CODE) {
@@ -96,104 +92,87 @@ public class ButtonDraggableFuncs
                             } else {
                                 btn.setBackgroundColor(Color.WHITE);
                             }
-
                             lastAction = MotionEvent.ACTION_MOVE;
-                            return true; // Consume the event to prevent other actions
-                        }
-                        else if (deltaY > deltaX && deltaY > DRAG_THRESHOLD) {
-                            // Let the ScrollView handle vertical scrolling
+                            return true;
+                        } else if (deltaY > deltaX && deltaY > DRAG_THRESHOLD) {
                             btn.setBackgroundColor(Color.WHITE);
-                            view.setX(startXLocation); // Reset button position
+                            view.setX(startXLocation);
                             scrollViewOfButtons.setScrollingEnabled(true);
-                            return false; // Pass the event for vertical scrolling
+                            return false;
                         }
                         break;
-
                     case MotionEvent.ACTION_UP:
                         scrollViewOfButtons.setScrollingEnabled(true);
-
-                        // Handle the button release after dragging
                         if (isDragging) {
-                            if(btn.getFinalWordProperties().getUserDetailsOnWords().getAmountOfStars() == 0)
-                            {
-                                XpPointsTracker.addOrSubToProgressBar2(3,btn.getContext());
-                                //XpPointsTracker.addOrSubToProgressBar(1,btn.getContext());
+                            if (btn.getFinalWordProperties().getUserDetailsOnWords().getAmountOfStars() == 0) {
+                                XpPointsTracker.addOrSubToProgressBar2(3, btn.getContext());
                             }
-                            // Handle the swipe logic
                             if (view.getX() - startXLocation > RightMaxLocation && currAction != JUST_LEFT_CODE) {
                                 dbManager.setWordAsKnowWord(currentWord);
-                                int idOfRightBtn = buttonsAndId[2];
-                                Button b2 = ((Activity) context).findViewById(idOfRightBtn);
-                                changeBtnName(b2, true);
-
-                                int idOfCurrentBtnToSubtract = buttonsAndId[currAction - 1];
-                                Button b = ((Activity) context).findViewById(idOfCurrentBtnToSubtract);
-                                changeBtnName(b, false);
+                                Button rightBtn = ((Activity) context).findViewById(buttonsAndId[2]);
+                                changeBtnName(rightBtn, true);
+                                Button currentBtnSubtract = ((Activity) context).findViewById(buttonsAndId[currAction - 1]);
+                                changeBtnName(currentBtnSubtract, false);
                                 makeAnimationOfButtonGoingRight(btn, true);
                             } else if (view.getX() - startXLocation < LeftMaxLocation && currAction != JUST_RIGHT_CODE) {
                                 dbManager.setWordAsDoesNOTKnowWord(currentWord);
                                 makeAnimationOfButtonGoingRight(btn, false);
-
-                                int idOfCurrentBtn = buttonsAndId[currAction - 1];
-                                Button b = ((Activity) context).findViewById(idOfCurrentBtn);
-                                changeBtnName(b, false);
-                                int idOfLeftBtn = buttonsAndId[0];
-                                Button b2 = ((Activity) context).findViewById(idOfLeftBtn);
-                                changeBtnName(b2, true);
+                                Button currentBtn = ((Activity) context).findViewById(buttonsAndId[currAction - 1]);
+                                changeBtnName(currentBtn, false);
+                                Button leftBtn = ((Activity) context).findViewById(buttonsAndId[0]);
+                                changeBtnName(leftBtn, true);
                             } else {
-                                view.setX(startXLocation); // Reset position if no swipe
+                                view.setX(startXLocation);
                             }
-                            isDragging = false; // Reset dragging state
+                            isDragging = false;
                         } else {
-                            view.setX(startXLocation); // Reset position if no drag
+                            view.setX(startXLocation);
                         }
                         return true;
-
                     default:
                         return false;
                 }
                 return true;
             }
         });
-
-// Adding the OnLongClickListener
-        /*btn.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if(isDragging)
-                {
-                    return false;
-                }
-                // Code to handle the long press event
-                Toast.makeText(v.getContext(), "Long press detected!", Toast.LENGTH_SHORT).show();
-                dbManager.updateIsWordMarkedBasedOnWord(currentWord,true);
-                return true; // Return true to indicate the event is handled
-            }
-        });*/
-
     }
-    private static void changeBtnName(Button btn,boolean isPlus)
-    {
+
+    /**
+     * Changes the text of a given {@link Button} by either incrementing or
+     * decrementing the numerical value found within its text. The non-numerical
+     * parts of the text are preserved.
+     *
+     * @param btn     The {@link Button} whose text needs to be updated.
+     * @param isPlus  A boolean indicating whether to increment ({@code true})
+     * or decrement ({@code false}) the numerical value.
+     */
+    private static void changeBtnName(Button btn, boolean isPlus) {
         String finalString = "";
         String text = btn.getText().toString();
         int valueOfBtn = OperationsAndOtherUsefull.getIntInButtonText(btn);
-        if(isPlus)
-        {
+        if (isPlus) {
             valueOfBtn++;
-        }
-        else {
+        } else {
             valueOfBtn--;
         }
-        for(int i =0; i <text.length();i++)
-        {
-            if(text.charAt(i) >= '0' && text.charAt(i) <='9')
-            {
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) >= '0' && text.charAt(i) <= '9') {
                 continue;
             }
-            finalString+=text.charAt(i);
+            finalString += text.charAt(i);
         }
-        btn.setText(finalString+String.valueOf(valueOfBtn));
+        btn.setText(finalString + String.valueOf(valueOfBtn));
     }
+
+    /**
+     * Animates a given {@link View} (typically a button) moving off-screen to the
+     * right or left, and then sets its visibility to {@link View#GONE} after the
+     * animation completes.
+     *
+     * @param btn     The {@link View} to animate.
+     * @param isRight A boolean indicating the direction of the animation.
+     * {@code true} for moving to the right, {@code false} for moving to the left.
+     */
     public static void makeAnimationOfButtonGoingRight(View btn, boolean isRight) {
         float endX = 1200;
         if (!isRight) {
@@ -205,7 +184,8 @@ public class ButtonDraggableFuncs
                 .setDuration(500)
                 .setListener(new Animator.AnimatorListener() {
                     @Override
-                    public void onAnimationStart(@NonNull Animator animator) {}
+                    public void onAnimationStart(@NonNull Animator animator) {
+                    }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -213,10 +193,12 @@ public class ButtonDraggableFuncs
                     }
 
                     @Override
-                    public void onAnimationCancel(@NonNull Animator animator) {}
+                    public void onAnimationCancel(@NonNull Animator animator) {
+                    }
 
                     @Override
-                    public void onAnimationRepeat(@NonNull Animator animator) {}
+                    public void onAnimationRepeat(@NonNull Animator animator) {
+                    }
                 })
                 .start();
     }

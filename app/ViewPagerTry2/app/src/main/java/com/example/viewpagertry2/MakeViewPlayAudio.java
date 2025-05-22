@@ -47,7 +47,7 @@ public class MakeViewPlayAudio {
                     assetManager.openFd(fileName).getLength());
             mediaPlayer.prepare();
             mediaPlayer.setLooping(loopMusic);
-
+            mediaPlayer.setVolume(0.2f, 0.2f);
             mediaPlayer.start();
         } catch (IOException e) {
             e.printStackTrace();

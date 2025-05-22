@@ -29,8 +29,12 @@ public class DBManager extends SQLiteOpenHelper {
     private static final String DATABASE_PATH = "/data/data/com.example.viewpagertry2/databases/";
     private final Context context;
 
-
-
+    /**
+     * Constructs a new DBManager instance. It initializes the SQLiteOpenHelper with the database name and version,
+     * and attempts to copy the database from the application's assets if it doesn't already exist.
+     *
+     * @param context The application context.
+     */
     public DBManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
@@ -41,6 +45,15 @@ public class DBManager extends SQLiteOpenHelper {
             Log.e("DBManager", "Error copying database: " + e.getMessage());
         }
     }
+
+    /**
+     * Copies the database file from the application's assets folder to the device's database directory,
+     * but only if the database file does not already exist. If {@code overrideCuurentFile} is true,
+     * it will delete the existing database file before attempting to copy.
+     *
+     * @param overrideCuurentFile A boolean indicating whether to override the existing database file if it exists.
+     * @throws IOException If an error occurs during the file copying process.
+     */
     private void copyDatabaseIfNeeded(boolean overrideCuurentFile) throws IOException
     {
         File dbFile = new File(DATABASE_PATH + DATABASE_NAME);
@@ -73,24 +86,45 @@ public class DBManager extends SQLiteOpenHelper {
             }
             catch (Exception e)
             {
-                int a =5;
+                Log.e("DBManager", "An unexpected error occurred during database copy: " + e.getMessage());
             }
         }
     }
+
+    /**
+     * Called when the database is created for the first time.
+     * This method is empty in this implementation, as table creation is assumed to be handled
+     * by the pre-existing database file copied from assets.
+     *
+     * @param db The SQLite database.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         // This method is called when the database is created for the first time.
         // You can define your table creation SQL statements here if needed.
         //Log.d("DBManager", "Database created.");
-       // db.execSQL("CREATE TABLE IF NOT EXISTS words (word_id INTEGER PRIMARY KEY, word TEXT, meaning TEXT, word_type TEXT, origin_place TEXT, amountOfStars INTEGER, knowledge_level TEXT, isWordMark INTEGER)");
+        // db.execSQL("CREATE TABLE IF NOT EXISTS words (word_id INTEGER PRIMARY KEY, word TEXT, meaning TEXT, word_type TEXT, origin_place TEXT, amountOfStars INTEGER, knowledge_level TEXT, isWordMark INTEGER)");
     }
 
+    /**
+     * Called when the database needs to be upgraded.
+     * This method is empty in this implementation, as database upgrades are not explicitly handled.
+     *
+     * @param db         The SQLite database.
+     * @param oldVersion The old database version.
+     * @param newVersion The new database version.
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This method is called when the database needs to be upgraded.
         //Log.d("DBManager", "Database upgraded.");
     }
 
+    /**
+     * Opens the database for writing. If the database cannot be opened, an error message is logged.
+     *
+     * @return A writable SQLiteDatabase instance, or null if an error occurred.
+     */
     public SQLiteDatabase openDb() {
         SQLiteDatabase db = null;  // Initialize db to null
         try {
@@ -102,10 +136,22 @@ public class DBManager extends SQLiteOpenHelper {
         return db; // Return the database (may be null if an error occurred)
     }
 
+    /**
+     * Closes the database connection.
+     */
     public void closeDb() {
         this.close();
         Log.d("DBManager", "Database closed.");
     }
+
+    /**
+     * Executes a raw SQL query that is expected to return a single integer count.
+     * It retrieves the count from the first column of the first row of the result.
+     * The cursor is always closed in a finally block to prevent memory leaks.
+     *
+     * @param query The raw SQL query to execute (e.g., "SELECT COUNT(*) FROM ...").
+     * @return The integer count returned by the query, or 0 if an error occurs or the cursor is empty.
+     */
     private int execCountCommand(String query)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -125,7 +171,7 @@ public class DBManager extends SQLiteOpenHelper {
         }
         catch (Exception e)
         {
-            int a =0;
+            Log.e("DBManager", "Error executing count query: " + e.getMessage());
         }
         finally {
             // Always close the cursor to avoid memory leaks
@@ -136,6 +182,14 @@ public class DBManager extends SQLiteOpenHelper {
         // Return the count
         return count;
     }
+
+    /**
+     * Executes a raw SQL query that performs an update or delete operation on the database.
+     * It compiles the query into an SQLiteStatement and executes it.
+     * The database and statement are always closed in a finally block.
+     *
+     * @param query The raw SQL query to execute (e.g., "UPDATE ... SET ... WHERE ...", "DELETE FROM ... WHERE ...").
+     */
     private void execUpdateQuery(String query)
     {
         SQLiteDatabase db = null;
@@ -147,7 +201,7 @@ public class DBManager extends SQLiteOpenHelper {
             // Execute the update
             statement.executeUpdateDelete();
         } catch (Exception e) {
-            e.printStackTrace(); // Handle exceptions
+            Log.e("DBManager", "Error executing update query: " + e.getMessage());
         } finally {
             if (statement != null) {
                 statement.close(); // Close the statement
@@ -163,10 +217,12 @@ public class DBManager extends SQLiteOpenHelper {
         String query = "UPDATE user_details_on_words SET isWordMark = "+isMarked+" WHERE word = '"+word+"';";
         execUpdateQuery(query);
     }
-    public void oppsiteWordMarkedBasedOnWord(String word,boolean isMarked)
-    {
-    //maybe when user clicks long just upside the word marked beside checking if true or false
-    }
+    /**
+     * Retrieves an array of {@link FinalWordProperties} representing words that the user has marked.
+     * It queries the 'user_details_on_words' table for entries where the 'isWordMark' flag is set to 1.
+     *
+     * @return An array of {@link FinalWordProperties} for marked words, or an empty array if no words are marked.
+     */
     public FinalWordProperties[] getMarkedWords()
     {
         String query = "select * from user_details_on_words where isWordMark = 1";
@@ -174,6 +230,13 @@ public class DBManager extends SQLiteOpenHelper {
 
         return execQueryOfBothTablesByUserDetailsValues(query,null);
     }
+    /**
+     * Updates the 'amountOfStars' for a specific word in the 'user_details_on_words' table.
+     * It uses a parameterized query to prevent SQL injection.
+     *
+     * @param word      The word for which to update the star amount.
+     * @param newAmount The new amount of stars to set for the word.
+     */
     private void updateAmountOfStarsBasedOnWord(String word, int newAmount) {
         String query = "UPDATE user_details_on_words SET amountOfStars = ? WHERE word = ?";
         SQLiteDatabase db = null;
@@ -201,6 +264,12 @@ public class DBManager extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Increases the knowledge level of a word in the 'englishWords' table.
+     * The knowledge level is incremented by one based on the current knowledge level stored in the provided {@link UserDetailsOnWords} object.
+     *
+     * @param userDetailsOnWords The {@link UserDetailsOnWords} object containing the current knowledge level and the word.
+     */
     private void increaseKnowledeLevel(UserDetailsOnWords userDetailsOnWords)
     {
         //knowlage level - each time user is accor with a word in a game
@@ -210,6 +279,15 @@ public class DBManager extends SQLiteOpenHelper {
         String query = "UPDATE englishWords SET knowledge_level = "+updateKnowledge+" where word = "+word+";";
         this.execUpdateQuery(query);
     }
+    /**
+     * Updates the amount of stars and knowledge level for a given word based on whether the user's answer was correct.
+     * If the answer is correct ('isRight' is true), it increases the 'amountOfStars' if it's below a certain threshold.
+     * If the answer is incorrect ('isRight' is false), it decreases the 'amountOfStars' if it's above a certain threshold.
+     * It also calls {@link #increaseKnowledeLevel(UserDetailsOnWords)} to increment the word's knowledge level.
+     *
+     * @param word    The word to update.
+     * @param isRight A boolean indicating whether the user's answer was correct (true) or incorrect (false).
+     */
     public void updateAmountOfStarsAndKnowledge(String word,boolean isRight)
     {
         UserDetailsOnWords userDetailsOnWords = getUserDetailsBasedOnWord(word);
@@ -252,6 +330,15 @@ public class DBManager extends SQLiteOpenHelper {
             }
         }
     }
+    /**
+     * Calculates the number of units within a specific category for a given language.
+     * If the provided category number is the last category, it calculates the remaining units based on the total number of words.
+     * Otherwise, it returns a predefined constant for the number of units per category.
+     *
+     * @param isEnglish   A boolean indicating whether to consider English words (true) or another language (false).
+     * @param categoryNum The index of the category for which to count the units.
+     * @return The number of units in the specified category.
+     */
     public int getCountOfUnitsInACategory(boolean isEnglish,int categoryNum)
     {
         int sumWords = getCountOfWords(isEnglish);
@@ -264,12 +351,28 @@ public class DBManager extends SQLiteOpenHelper {
         }
         return OperationsAndOtherUsefull.NUM_OF_UNITS_IN_EACH_CATEGORY;
     }
+    /**
+     * Calculates the total number of categories for a given language based on the total number of words
+     * and the predefined number of units and words per unit in each category.
+     *
+     * @param isEnglish A boolean indicating whether to consider English words (true) or another language (false).
+     * @return The total number of categories.
+     */
     public int getCountOfCategories(boolean isEnglish)
     {
         int sumWords = getCountOfWords(isEnglish);
         int numCategories = sumWords/(OperationsAndOtherUsefull.NUM_OF_UNITS_IN_EACH_CATEGORY*OperationsAndOtherUsefull.WORDS_PER_UNIT)+1;
         return numCategories;
     }
+    /**
+     * Retrieves the count of words that the user knows based on their 'amountOfStars' in the 'user_details_on_words' table.
+     * It considers words with an 'amountOfStars' greater than or equal to a predefined minimum value as known.
+     * <p>
+     * Note: The comment "//problem  - takes words also with hebrew - change db or get rid of hebrew words" indicates a potential issue where the query might include words from other languages if they exist in the 'user_details_on_words' table.
+     * </p>
+     *
+     * @return The number of words the user knows.
+     */
     public int getCountOfWordsUserKnow() {
         int minAmount = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
         String query;
@@ -278,6 +381,16 @@ public class DBManager extends SQLiteOpenHelper {
         query = "SELECT COUNT(*) FROM user_details_on_words where amountOfStars >= "+minAmount+";";
         return execCountCommand(query);
     }
+    /**
+     * Retrieves the count of words that the user knows within a specific category.
+     * It filters words based on their 'amountOfStars' and their 'word_id' range corresponding to the given category.
+     * <p>
+     * Note: The comment "//problem  - takes words also with hebrew - change db or get rid of hebrew words" indicates a potential issue where the query might include words from other languages if they exist in the 'user_details_on_words' table.
+     * </p>
+     *
+     * @param category The index of the category to filter by.
+     * @return The number of known words in the specified category.
+     */
     public int getCountOfWordsUserKnowInSpecificCategory(int category) {
         int minAmount = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
         int minId = OperationsAndOtherUsefull.getStartIdOfCategory(category);
@@ -289,17 +402,15 @@ public class DBManager extends SQLiteOpenHelper {
         query += " and word_id > "+minId+" and word_id <= "+maxId+";";
         return execCountCommand(query);
     }
-    /*public int getCountOfWordsUserKnowBasedOnCategory(int category,int unitToCheckAmount) {
-        int minAmount = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
-        int minId = OperationsAndOtherUsefull.getStartIdOfUnit(category,unitToCheckAmount);
-        int maxId = minId + OperationsAndOtherUsefull.WORDS_PER_UNIT;
-        String query;
-        // Set the query based on the language
-        //problem  - takes words also with hebrew - change db or get rid of hebrew words
-        query = "SELECT COUNT(*) FROM user_details_on_words where amountOfStars >= "+minAmount;
-        query += " and word_id > "+minId+" and word_id <= "+maxId+";";
-        return execCountCommand(query);
-    }*/
+
+    /**
+     * Retrieves the count of words that the user knows within a specific unit of a category.
+     * It filters words based on their 'amountOfStars' and their 'word_id' range corresponding to the given category and unit.
+     *
+     * @param category         The index of the category.
+     * @param unitToCheckAmount The index of the unit within the category.
+     * @return The number of known words in the specified unit of the category.
+     */
     public int getCountOfWordsUserKnowBasedOnCategory(int category,int unitToCheckAmount) {
         SQLiteDatabase db = this.getReadableDatabase();
         int count = 0;
@@ -320,6 +431,12 @@ public class DBManager extends SQLiteOpenHelper {
         return count;
     }
 
+    /**
+     * Retrieves the total count of words in either the 'englishWords' or 'hebrewWords' table based on the provided language flag.
+     *
+     * @param isEnglish A boolean indicating whether to count English words (true) or Hebrew words (false).
+     * @return The total number of words in the specified language table.
+     */
     public int getCountOfWords(boolean isEnglish) {
 
         String query;
@@ -333,6 +450,12 @@ public class DBManager extends SQLiteOpenHelper {
         return execCountCommand(query);
     }
 
+    /**
+     * Retrieves the properties of a single word from the 'englishWords' table based on the word itself.
+     *
+     * @param word The English word to retrieve properties for.
+     * @return A {@link WordProperties} object containing the word's ID, meaning, and origin place, or null if the word is not found.
+     */
     private WordProperties getWordPropetiesBasedOnWord(String word)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -350,7 +473,12 @@ public class DBManager extends SQLiteOpenHelper {
         cursor.close();
         return currentWordProper;
     }
-    // Get user details based on the word
+    /**
+     * Retrieves the user-specific details for a given word from the 'user_details_on_words' table.
+     *
+     * @param word The word to retrieve user details for.
+     * @return A {@link UserDetailsOnWords} object containing the word's amount of stars, knowledge level, and marked status, or null if the word is not found in the user details table.
+     */
     private UserDetailsOnWords getUserDetailsBasedOnWord(String word) {
         SQLiteDatabase db = this.getReadableDatabase();
         UserDetailsOnWords currentUserDetails = null;
@@ -368,6 +496,15 @@ public class DBManager extends SQLiteOpenHelper {
         return currentUserDetails;
     }
 
+    /**
+     * Executes a raw SQL query that potentially joins data from multiple tables (specifically implied to be 'user_details_on_words' and 'englishWords' or similar)
+     * based on user details values. It iterates through the cursor, retrieves user details and corresponding word properties,
+     * and combines them into {@link FinalWordProperties} objects.
+     *
+     * @param query         The raw SQL query to execute.
+     * @param selectionArgs Optional arguments for the query, to prevent SQL injection.
+     * @return An array of {@link FinalWordProperties} representing the combined data, or null if an exception occurs during the query execution.
+     */
     private FinalWordProperties[] execQueryOfBothTablesByUserDetailsValues(String query,String[] selectionArgs)
     {
         List<FinalWordProperties> allWordsProperties = new ArrayList<>();
@@ -398,6 +535,7 @@ public class DBManager extends SQLiteOpenHelper {
         cursor.close();
         return allWordsProperties.toArray(new FinalWordProperties[0]);
     }
+
     private FinalWordProperties[] execQueryOfBothTables(String query,String[] selectionArgs)
     {
         List<FinalWordProperties> allWordsProperties = new ArrayList<>();
@@ -500,24 +638,6 @@ public class DBManager extends SQLiteOpenHelper {
         else
         {query = "SELECT * FROM hebrewWords ORDER BY RANDOM() LIMIT ?";}
         return execQueryOfBothTables(query,new String[]{String.valueOf(amount)});
-    }
-    public FinalWordProperties[] getWordsOfUnit(int unit,int category,boolean isEnglish,int action) {
-            //TO COMPLETE
-        //get the start id of words
-        int startId = (category-1)*OperationsAndOtherUsefull.NUM_OF_UNITS_IN_EACH_CATEGORY*OperationsAndOtherUsefull.WORDS_PER_UNIT;
-        startId += (unit-1) *OperationsAndOtherUsefull.WORDS_PER_UNIT;
-        String query = "";
-
-        if(isEnglish)
-        {
-            query = "SELECT * FROM englishWords ORDER BY word_id LIMIT ? offset ?";
-        }
-        else
-        {
-            query = "SELECT * FROM hebrewWords ORDER BY word_id LIMIT ? offset ?";
-        }
-
-        return execQueryOfBothTables(query,new String[]{String.valueOf(OperationsAndOtherUsefull.WORDS_PER_UNIT),String.valueOf(startId)});
     }
 
     public FinalWordProperties[] getWordsOfUnit(int unit,int category,boolean isEnglish) {

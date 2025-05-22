@@ -1,3 +1,4 @@
+
 package OfflineActivities;
 
 import android.content.Intent;
@@ -32,12 +33,28 @@ import files.XpPointsTracker;
 import ExercisesPages.WordQuestionsPageMultipleAnswers;
 import ExercisesPages.WordQuestionsPageWriteAnswer;
 
+/**
+ * The main menu for offline activities. Provides access to various features
+ * such as starting games, sorting words, searching the database, playing writing games,
+ * viewing marked words, and a shop for in-app currency (XP points). It also displays
+ * the user's current rank and level progress and fetches a daily word from an API.
+ */
 public class MenuOfflinePage extends AppCompatActivity {
 
-    DBManager dbManager;
-    ImageView shieldImageView;
-    int BUCKET_AMOUNT = 20;
-    int HANDFUL_AMOUNT = 10;
+    private DBManager dbManager;
+    private ImageView shieldImageView;
+    private final int BUCKET_AMOUNT = 20;
+    private final int HANDFUL_AMOUNT = 10;
+
+    /**
+     * Called when the activity is first created. Sets up the layout, initializes
+     * the database manager, sets up listeners for shop buttons, updates the UI
+     * with progress and a daily word, and starts background music.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     * previously being shut down then this Bundle contains the data it most
+     * recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,55 +68,55 @@ public class MenuOfflinePage extends AppCompatActivity {
 
         dbManager = new DBManager(this);
         shieldImageView = findViewById(R.id.progressRankImageView);
-        shieldImageView.post(new Runnable() {
-            @Override
-            public void run() {
-                setListernsToShopButtons();
-            }
-        });
-        onStartPage();
-
-        get_daily_word();
-        MakeViewPlayAudio.playRecording(this,"composeapptry2melody.mp3",true);
-        //XpPointsTracker.resetAmount(this);
+        shieldImageView.post(this::setListernsToShopButtons); // Set listeners after view is laid out
+        onStartPage(); // Update UI elements
+        get_daily_word(); // Fetch and display the daily word
+        MakeViewPlayAudio.playRecording(this, "composeapptry2melody.mp3", true); // Start background music
+        // XpPointsTracker.resetAmount(this); // Uncomment to reset XP points for testing
     }
-    private void get_daily_word()
-    {
+
+    /**
+     * Fetches a daily word and its meaning from a remote API and displays it
+     * in the {@link TextView} with the ID {@code R.id.daily_word_textView}.
+     * Handles potential errors during the API request or JSON parsing.
+     */
+    private void get_daily_word() {
         TextView daily_text = findViewById(R.id.daily_word_textView);
         API_Handler.sendGetRequest("http://13.51.79.222:15555/daily_word", new ReqCallback() {
             @Override
             public void onSuccess(String response) {
-                String a = "hi";
                 Gson gson = new Gson();
                 try {
                     DailyWord word_meaning = gson.fromJson(response, DailyWord.class);
-                    daily_text.setText(word_meaning.word+": "+word_meaning.meaning);
+                    daily_text.setText(word_meaning.word + ": " + word_meaning.meaning);
+                } catch (Exception e) {
+                    // Handle JSON parsing error (e.g., log the error)
                 }
-                catch (Exception e)
-                {
-                    //pass
-                }
-
-
-
             }
 
             @Override
             public void onFailure(Exception e) {
-                int a =0;
+                // Handle API request failure (e.g., log the error or display a default message)
             }
         });
     }
-    public void RankImageClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the rank image, navigating the user to the
+     * {@link ShowRankProgressActivity} to view their full rank and level progress.
+     *
+     * @param view The clicked rank {@link ImageView}.
+     */
+    public void RankImageClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, ShowRankProgressActivity.class);
         startActivity(intent);
-
-
     }
 
-    private void setProgressBar()
-    {
+    /**
+     * Updates the progress bar and level text view based on the user's current
+     * XP points. It also sets the image of the current rank.
+     */
+    private void setProgressBar() {
         TextProgressBar progressBar = findViewById(R.id.progressBar);
         TextView levelTextView = findViewById(R.id.currentLevelTextView);
         ImageView imageView = findViewById(R.id.progressRankImageView);
@@ -109,111 +126,143 @@ public class MenuOfflinePage extends AppCompatActivity {
         int progressBarValue = XpPointsTracker.getAmountForProgressBarNextLevel();
         progressBar.setProgress(progressBarValue);
         int nextLevelPoints = XpPointsTracker.getAmountForNextLevel();
-        if(nextLevelPoints == -1)
-        {
+
+        if (nextLevelPoints == -1) {
             progressBar.setProgress(100);
             progressBar.setText(Integer.toString(currentAmount));
-            levelTextView.setVisibility(View.GONE);
-        }
-        else {
-            progressBar.setText(currentAmount+"/"+nextLevelPoints);
+            levelTextView.setVisibility(View.GONE); // Hide level text if max level reached
+        } else {
+            progressBar.setText(currentAmount + "/" + nextLevelPoints);
+            levelTextView.setVisibility(View.VISIBLE);
+            levelTextView.setText(String.valueOf(XpPointsTracker.getCurrentLevel()));
         }
 
-
-        XpPointsTracker.getImgOfCurrentRank2(this,imageView);
-        int currLevel = XpPointsTracker.getCurrentLevel();
-        levelTextView.setText(Integer.toString(currLevel));
+        XpPointsTracker.getImgOfCurrentRank2(this, imageView);
     }
-    private void onStartPage()
-    {
+
+    /**
+     * Updates UI elements on activity start, such as the progress bar and the
+     * "Sort Words" button which displays the number of known words out of the total.
+     */
+    private void onStartPage() {
         setProgressBar();
-        Button orgenizeBtn = findViewById(R.id.orgenizeWordsButtonMenu);
-        int amountOfWordsKnow,amountOfAllWords;
-        amountOfAllWords =  dbManager.getCountOfWords(true);
-        amountOfWordsKnow = dbManager.getCountOfWordsUserKnow();
+        Button organizeBtn = findViewById(R.id.orgenizeWordsButtonMenu);
+        int amountOfWordsKnow = dbManager.getCountOfWordsUserKnow();
+        int amountOfAllWords = dbManager.getCountOfWords(true);
 
-
-
-
-        orgenizeBtn.setSingleLine(false);
-        orgenizeBtn.setText("Sort Words\n"+amountOfWordsKnow+"/"+amountOfAllWords);
-
-
+        organizeBtn.setSingleLine(false);
+        organizeBtn.setText("Sort Words\n" + amountOfWordsKnow + "/" + amountOfAllWords);
     }
-    public void gameButtonClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Start Game" button, navigating the user
+     * to the {@link WordQuestionsPageMultipleAnswers} activity.
+     *
+     * @param view The clicked "Start Game" {@link Button}.
+     */
+    public void gameButtonClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, WordQuestionsPageMultipleAnswers.class);
         startActivity(intent);
-        //this.finish();
+        // this.finish(); // Consider if you want to close the menu after starting the game
     }
-    public void orgenizeButtonClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Sort Words" button, navigating the user
+     * to the {@link SortingWordsPage}. It also passes the last viewed unit and
+     * category to maintain user context.
+     *
+     * @param view The clicked "Sort Words" {@link Button}.
+     */
+    public void orgenizeButtonClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, SortingWordsPage.class);
-        //get previous category and unit
         UnitAndCaetogryHistoryHelper categoryUnit = HistoryOfUnitAndCategoryPrefs.getUnitAndCategory(this);
-        intent.putExtra("category",categoryUnit.getCategoryIndex());
-        intent.putExtra("unit",categoryUnit.getUnitIndex());
+        intent.putExtra("category", categoryUnit.getCategoryIndex());
+        intent.putExtra("unit", categoryUnit.getUnitIndex());
         startActivity(intent);
-        //this.finish();
+        // this.finish(); // Consider if you want to close the menu after sorting words
     }
-    public void searchWordsButtonClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Search Words" button, navigating the user
+     * to the {@link SeacrhWordInDbActivity}.
+     *
+     * @param view The clicked "Search Words" {@link Button}.
+     */
+    public void searchWordsButtonClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, SeacrhWordInDbActivity.class);
         startActivity(intent);
-
-        //this.finish();
+        // this.finish(); // Consider if you want to close the menu after searching
     }
-    public  void writeGameButtonClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Write Game" button, navigating the user
+     * to the {@link WordQuestionsPageWriteAnswer} activity.
+     *
+     * @param view The clicked "Write Game" {@link Button}.
+     */
+    public void writeGameButtonClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, WordQuestionsPageWriteAnswer.class);
         startActivity(intent);
     }
-    public void markedWordButtonClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Marked Words" button, navigating the user
+     * to the {@link SortingWordsPage} and filtering to show only marked words.
+     *
+     * @param view The clicked "Marked Words" {@link Button}.
+     */
+    public void markedWordButtonClicked(View view) {
         Intent intent = new Intent(MenuOfflinePage.this, SortingWordsPage.class);
         intent.putExtra("action", OperationsAndOtherUsefull.MARKED_WORDS_ACTION);
         startActivity(intent);
     }
-    private void setListernsToShopButtons()
-    {
+
+    /**
+     * Sets {@link android.view.View.OnClickListener}s to the shop buttons (single coin,
+     * handful of coins, bucket of coins) to trigger the {@link #shopButtonClicked(View, int)}
+     * method with the corresponding amount of XP points to add.
+     */
+    private void setListernsToShopButtons() {
         ImageView oneCoin = findViewById(R.id.imageView3);
         ImageView handfulCoins = findViewById(R.id.imageView2);
         ImageView bucketCoins = findViewById(R.id.imageView);
 
-        oneCoin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shopButtonClicked(view,1);
-            }
-        });
-        handfulCoins.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shopButtonClicked(view,HANDFUL_AMOUNT);
-            }
-        });
-        bucketCoins.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                shopButtonClicked(view,BUCKET_AMOUNT);
-            }
-        });
+        oneCoin.setOnClickListener(view -> shopButtonClicked(view, 1));
+        handfulCoins.setOnClickListener(view -> shopButtonClicked(view, HANDFUL_AMOUNT));
+        bucketCoins.setOnClickListener(view -> shopButtonClicked(view, BUCKET_AMOUNT));
     }
-    public void resetPointsBtnClicked(View view)
-    {
+
+    /**
+     * Handles the click event of the "Reset Points" button, resetting the user's
+     * XP points using {@link XpPointsTracker#resetAmount(android.content.Context)}
+     * and updating the progress bar and level display.
+     *
+     * @param view The clicked "Reset Points" {@link Button}.
+     */
+    public void resetPointsBtnClicked(View view) {
         XpPointsTracker.resetAmount(this);
         TextView curr_level = findViewById(R.id.currentLevelTextView);
-        curr_level.setVisibility(View.VISIBLE);//for if the previous shield was the max one - that in it the curr level is unvisible
+        curr_level.setVisibility(View.VISIBLE); // Ensure level text is visible after reset
         setProgressBar();
     }
-    private void shopButtonClicked(View view,int amount)
-    {
+
+    /**
+     * Animates the addition of XP points when a shop button is clicked. It calls
+     * {@link XpPointsAnimations#animateAndAddXpPoints(int, android.content.Context, android.view.ViewGroup, float, float, float, float)}
+     * to create a visual animation of coins moving from the clicked button to the
+     * rank shield, and updates the XP points accordingly. Finally, it updates the
+     * progress bar.
+     *
+     * @param view   The clicked shop {@link ImageView}.
+     * @param amount The amount of XP points to add.
+     */
+    private void shopButtonClicked(View view, int amount) {
         ConstraintLayout layout = findViewById(R.id.main);
-        float endX = shieldImageView.getX()+shieldImageView.getWidth()/2;
-        float endY = shieldImageView.getY()+shieldImageView.getHeight()/2;
+        float endX = shieldImageView.getX() + shieldImageView.getWidth() / 2f;
+        float endY = shieldImageView.getY() + shieldImageView.getHeight() / 2f;
         float xPosition = view.getX();
         float yPosition = view.getY();
-        XpPointsAnimations.animateAndAddXpPoints(amount,view.getContext(),layout,xPosition,yPosition,endX,endY);
+        XpPointsAnimations.animateAndAddXpPoints(amount, view.getContext(), layout, xPosition, yPosition, endX, endY);
         setProgressBar();
     }
 }

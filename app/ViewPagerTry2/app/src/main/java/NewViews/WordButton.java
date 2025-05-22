@@ -1,3 +1,4 @@
+
 package NewViews;
 
 import android.content.Context;
@@ -11,61 +12,88 @@ import com.example.viewpagertry2.FinalWordProperties;
 import com.example.viewpagertry2.MakeViewPlayAudio;
 import com.example.viewpagertry2.R;
 
+/**
+ * A custom {@link androidx.appcompat.widget.AppCompatButton} that displays a word
+ * and includes interactive buttons for marking the word and playing its audio.
+ * These additional buttons are added dynamically to a {@link RelativeLayout}
+ * that wraps the WordButton.
+ */
 public class WordButton extends androidx.appcompat.widget.AppCompatButton {
     private DBManager dbManager;
-    private ImageButton imageButton = null;
-    private ImageButton playAudioImgButton = null;
-    private FinalWordProperties finalWordProperties = null;
-    public WordButton(Context context,FinalWordProperties finalWordProperties,DBManager activeDbManager) {
+    private ImageButton imageButton = null; // Button to mark/unmark the word
+    private ImageButton playAudioImgButton = null; // Button to play the word's audio
+    private FinalWordProperties finalWordProperties = null; // Contains word details and user-specific info
+
+    /**
+     * Constructor for creating a WordButton.
+     *
+     * @param context             The Context the view is running in.
+     * @param finalWordProperties The {@link FinalWordProperties} associated with this word.
+     * @param activeDbManager     An instance of {@link DBManager} for database operations.
+     */
+    public WordButton(Context context, FinalWordProperties finalWordProperties, DBManager activeDbManager) {
         super(context);
         this.finalWordProperties = finalWordProperties;
         this.dbManager = activeDbManager;
     }
-    //maybe onclick - get to sorted in right unit and category?
-    @Override
-    public void setVisibility(int visibility)
-    {
-        super.setVisibility(visibility);
-        imageButton.setVisibility(visibility);
-        playAudioImgButton.setVisibility(visibility);
-        if(visibility == GONE || visibility == INVISIBLE)
-        {
 
+    /**
+     * Overrides {@link #setVisibility(int)} to also control the visibility
+     * of the associated mark and play audio buttons.
+     *
+     * @param visibility One of {@link #VISIBLE}, {@link #INVISIBLE}, or {@link #GONE}.
+     */
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if (imageButton != null) {
+            imageButton.setVisibility(visibility);
+        }
+        if (playAudioImgButton != null) {
+            playAudioImgButton.setVisibility(visibility);
         }
     }
-    public void setDbManager(DBManager activeDbManager)
-    {
+
+    /**
+     * Sets the {@link DBManager} instance for this button and adds the interactive buttons.
+     * This is useful if the DBManager is not available during initial construction.
+     *
+     * @param activeDbManager The {@link DBManager} instance.
+     */
+    public void setDbManager(DBManager activeDbManager) {
         this.dbManager = activeDbManager;
         addButtons();
     }
-    public void afterAddingToLayout()
-    {
-        if(dbManager != null)
-        {
+
+    /**
+     * Called after the WordButton has been added to a layout. This ensures
+     * that the parent {@link ViewGroup} is available for adding the overlay buttons.
+     */
+    public void afterAddingToLayout() {
+        if (dbManager != null) {
             addButtons();
-            //addbuttons2();
         }
     }
-    private void addbuttons2()
-    {
-        //this sets the img on top - but the click function can not be achived:(
-        this.setCompoundDrawablesWithIntrinsicBounds(R.drawable.baseline_play_audio_img_24, 0, 0, 0);
-    }
+
+    /**
+     * Adds the mark and play audio {@link ImageButton}s as overlays to the WordButton.
+     * This involves creating a {@link RelativeLayout} to contain both the WordButton
+     * and the overlay buttons, then replacing the WordButton in its original parent
+     * with this new container.
+     */
     private void addButtons() {
         RelativeLayout container = new RelativeLayout(getContext());
 
-
-        // Make sure the parent is not null
+        // Ensure the parent is not null
         ViewGroup parent = (ViewGroup) getParent();
         if (parent != null) {
-            //do this once!
             parent.removeView(this); // Remove WordButton from its parent
         }
 
-        container.addView(this); // Add WordButton
+        container.addView(this); // Add WordButton to the container
 
-        addMarked(container); // Add marked button
-        add_volume_img_display(container); // Add volume button
+        addMarked(container); // Add the marked button
+        add_volume_img_display(container); // Add the volume button
 
         // Check if the parent is not null and add the new container at the same index
         if (parent != null) {
@@ -73,82 +101,69 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
             parent.addView(container, index);
         }
     }
-    private void add_volume_img_display(RelativeLayout container)
-    {
-        playAudioImgButton = new ImageButton(getContext());
-        playAudioImgButton.setElevation(20);//make img appear on top of the button
-        playAudioImgButton.setImageResource(R.drawable.baseline_play_audio_img_24); // Replace with your drawable
-        playAudioImgButton.setBackground(null); // Remove default background if needed
-        // Create LayoutParams for positioning the image button
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,  // Width of the image button
-                ViewGroup.LayoutParams.WRAP_CONTENT   // Height of the image button
-        );
 
-        // Center the image button on the WordButton
+    /**
+     * Adds the play audio {@link ImageButton} to the container, positioned on the right
+     * of the WordButton. It sets an {@link android.view.View.OnClickListener} to
+     * trigger audio playback using {@link MakeViewPlayAudio}.
+     *
+     * @param container The {@link RelativeLayout} to which the button is added.
+     */
+    private void add_volume_img_display(RelativeLayout container) {
+        playAudioImgButton = new ImageButton(getContext());
+        playAudioImgButton.setElevation(20); // Make the image appear on top of the button
+        playAudioImgButton.setImageResource(R.drawable.baseline_play_audio_img_24); // Set the play audio icon
+        playAudioImgButton.setBackground(null); // Remove default background
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        //params.addRule(RelativeLayout.RIGHT_OF, this.getId());
         params.addRule(RelativeLayout.CENTER_VERTICAL);
 
-
-
-        // Add the ImageButton to the container with specified layout parameters
         container.addView(playAudioImgButton, params);
-        playAudioImgButton.setOnClickListener(v -> MakeViewPlayAudio.playRecordingOfWord(this.getContext(),this.finalWordProperties.getWordProperties().getWord_id()));
-
-        // Set click listener for the ImageButton
+        playAudioImgButton.setOnClickListener(v -> MakeViewPlayAudio.playRecordingOfWord(this.getContext(), this.finalWordProperties.getWordProperties().getWord_id()));
     }
+
+    /**
+     * Adds the mark/unmark {@link ImageButton} to the container, positioned on the left
+     * of the WordButton. It sets an {@link android.view.View.OnClickListener} to
+     * update the word's marked status in the database and toggle the button's icon.
+     *
+     * @param container The {@link RelativeLayout} to which the button is added.
+     */
     private void addMarked(RelativeLayout container) {
         boolean isMarked = finalWordProperties.getUserDetailsOnWords().isWordMark();
-            //this.setVisibility(GONE);
-            // Create a new ImageButton
+
         imageButton = new ImageButton(getContext());
         imageButton.setElevation(20);
-        if (!isMarked) {
-            // Set the image for the ImageButton
-            imageButton.setImageResource(R.drawable.baseline_add_to_marked_words_24); // Replace with your drawable
-        }
-        else {imageButton.setImageResource(R.drawable.baseline_check_24);}
+        imageButton.setImageResource(isMarked ? R.drawable.baseline_check_24 : R.drawable.baseline_add_to_marked_words_24);
+        imageButton.setBackground(null);
 
-        imageButton.setBackground(null); // Remove default background if needed
-            // Create LayoutParams for positioning the image button
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,  // Width of the image button
-                    ViewGroup.LayoutParams.WRAP_CONTENT   // Height of the image button
-            );
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        params.addRule(RelativeLayout.CENTER_VERTICAL);
 
-            // Center the image button on the WordButton
-            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            params.addRule(RelativeLayout.CENTER_VERTICAL);
+        container.addView(imageButton, params);
+        imageButton.setOnClickListener(v -> {
+            boolean isCurrentlyMarked = finalWordProperties.getUserDetailsOnWords().isWordMark();
+            finalWordProperties.getUserDetailsOnWords().setWordMark(!isCurrentlyMarked);
+            dbManager.updateIsWordMarkedBasedOnWord(this.finalWordProperties.getWordProperties().getWord(), !isCurrentlyMarked);
+            imageButton.setImageResource(isCurrentlyMarked ? R.drawable.baseline_add_to_marked_words_24 : R.drawable.baseline_check_24);
+            Toast.makeText(getContext(), isCurrentlyMarked ? "Word removed from marked words." : "Word added to marked words!", Toast.LENGTH_SHORT).show();
+        });
+    }
 
-
-
-            // Add the ImageButton to the container with specified layout parameters
-
-            container.addView(imageButton, params);
-            // Set click listener for the ImageButton
-            imageButton.setOnClickListener(v -> {
-                boolean IS_MARKED_IN_LISTER = finalWordProperties.getUserDetailsOnWords().isWordMark();
-                if(!IS_MARKED_IN_LISTER)
-                {
-                    finalWordProperties.getUserDetailsOnWords().setWordMark(true);
-                    dbManager.updateIsWordMarkedBasedOnWord(this.finalWordProperties.getWordProperties().getWord(),true);
-                    imageButton.setImageResource(R.drawable.baseline_check_24); // Replace with your drawable
-                    Toast.makeText(getContext(), "Word being added to marked words!", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    finalWordProperties.getUserDetailsOnWords().setWordMark(false);
-                    dbManager.updateIsWordMarkedBasedOnWord(this.finalWordProperties.getWordProperties().getWord(),false);
-                    imageButton.setImageResource(R.drawable.baseline_add_to_marked_words_24); // Replace with your drawable
-                    Toast.makeText(getContext(), "Word being removed from marked words.", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        }
-
-
-
-    public FinalWordProperties getFinalWordProperties()
-    {return finalWordProperties;}
+    /**
+     * Returns the {@link FinalWordProperties} associated with this button.
+     *
+     * @return The {@link FinalWordProperties} instance.
+     */
+    public FinalWordProperties getFinalWordProperties() {
+        return finalWordProperties;
+    }
 }

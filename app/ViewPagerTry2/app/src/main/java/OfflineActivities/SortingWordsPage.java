@@ -448,6 +448,10 @@ public class SortingWordsPage extends AppCompatActivity {
             //just return to the summerize. do not intrevene.
             this.finish();
         }
+        else if(previous_intent_id == OperationsAndOtherUsefull.SEARCH_WORD_INTENT_ID)
+        {
+            this.finish();
+        }
 
     }
 }
