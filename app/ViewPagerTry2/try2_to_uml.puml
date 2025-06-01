@@ -1,0 +1,62 @@
+@startuml
+class NewViews.WordButton {
+- DBManager dbManager
+- ImageButton imageButton
+- ImageButton playAudioImgButton
+- FinalWordProperties finalWordProperties
++ void setVisibility(int)
++ void setDbManager(DBManager)
++ void afterAddingToLayout()
+- void addButtons()
+- void add_volume_img_display(RelativeLayout)
+- void addMarked(RelativeLayout)
++ FinalWordProperties getFinalWordProperties()
+}
+
+
+class NewViews.TextProgressBar {
+- String text
+- Paint textPaint
+- void init()
++ void setText(String)
+# void onDraw(Canvas)
+}
+
+
+class NewViews.LockableScrollView {
+- boolean scrollable
++ boolean onInterceptTouchEvent(MotionEvent)
++ boolean onTouchEvent(MotionEvent)
++ void setScrollingEnabled(boolean)
+}
+
+
+class NewViews.StatisticsButton {
+~ Context context
+~ AfterAnswerQuestionDetails wordProperties
++ boolean performClick()
+- void putStars2()
+}
+
+
+class NewViews.DividerView {
+- int color
+- int thickness
+- int redPercentage
+- Paint paint
+- void init()
+# void onDraw(Canvas)
++ void setRedPercentage(int)
++ void setThickness(int)
++ void setColor(int)
+}
+
+
+
+
+NewViews.AppCompatButton <|-- NewViews.WordButton
+android.widget.ProgressBar <|-- NewViews.TextProgressBar
+android.widget.ScrollView <|-- NewViews.LockableScrollView
+NewViews.AppCompatButton <|-- NewViews.StatisticsButton
+android.view.View <|-- NewViews.DividerView
+@enduml

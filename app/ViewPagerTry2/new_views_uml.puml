@@ -1,0 +1,62 @@
+@startuml
+class WordButton {
+- DBManager dbManager
+- ImageButton imageButton
+- ImageButton playAudioImgButton
+- FinalWordProperties finalWordProperties
++ void setVisibility(int)
++ void setDbManager(DBManager)
++ void afterAddingToLayout()
+- void addButtons()
+- void add_volume_img_display(RelativeLayout)
+- void addMarked(RelativeLayout)
++ FinalWordProperties getFinalWordProperties()
+}
+
+
+class TextProgressBar {
+- String text
+- Paint textPaint
+- void init()
++ void setText(String)
+# void onDraw(Canvas)
+}
+
+
+class LockableScrollView {
+- boolean scrollable
++ boolean onInterceptTouchEvent(MotionEvent)
++ boolean onTouchEvent(MotionEvent)
++ void setScrollingEnabled(boolean)
+}
+
+
+class StatisticsButton {
+~ Context context
+~ AfterAnswerQuestionDetails wordProperties
++ boolean performClick()
+- void putStars2()
+}
+
+
+class DividerView {
+- int color
+- int thickness
+- int redPercentage
+- Paint paint
+- void init()
+# void onDraw(Canvas)
++ void setRedPercentage(int)
++ void setThickness(int)
++ void setColor(int)
+}
+
+
+
+
+AppCompatButton <|-- WordButton
+ProgressBar <|-- TextProgressBar
+ScrollView <|-- LockableScrollView
+AppCompatButton <|-- StatisticsButton
+View <|-- DividerView
+@enduml
