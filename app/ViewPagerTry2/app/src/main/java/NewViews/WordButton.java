@@ -1,6 +1,7 @@
 
 package NewViews;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -154,7 +155,10 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
             finalWordProperties.getUserDetailsOnWords().setWordMark(!isCurrentlyMarked);
             dbManager.updateIsWordMarkedBasedOnWord(this.finalWordProperties.getWordProperties().getWord(), !isCurrentlyMarked);
             imageButton.setImageResource(isCurrentlyMarked ? R.drawable.baseline_add_to_marked_words_24 : R.drawable.baseline_check_24);
-            Toast.makeText(getContext(), isCurrentlyMarked ? "Word removed from marked words." : "Word added to marked words!", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(this.getContext())
+                    .setMessage(isCurrentlyMarked ? "Word removed from marked words." : "Word added to marked words!")
+                    .setPositiveButton("OK", null)
+                    .show();
         });
     }
 

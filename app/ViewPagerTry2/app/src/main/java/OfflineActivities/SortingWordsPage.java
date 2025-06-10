@@ -363,8 +363,6 @@ public class SortingWordsPage extends AppCompatActivity {
     protected ArrayList<WordButton> createButtons(FinalWordProperties[] words)
     {
         ArrayList<WordButton> wordButtonArrayList = new ArrayList<>();
-        //should also take the text and phrase - later on
-        Map<String, Integer> buttonsAndId = new HashMap<>();
         final float[] currentHeight = {0};
         boolean toKeepIncrease = true;
         //the סדר is matter!
@@ -375,7 +373,7 @@ public class SortingWordsPage extends AppCompatActivity {
 
         LinearLayout buttonsContainer = findViewById(R.id.linearLayoutButtonContainer);
         LockableScrollView lockableScrollView = findViewById(R.id.buttonsScrollView);
-        // Clear previous buttons (optional, if you want to reset the container)
+        // Clear previous buttons
         buttonsContainer.removeAllViews();
         for(int i =0; i <words.length;i++)
         {
@@ -385,7 +383,6 @@ public class SortingWordsPage extends AppCompatActivity {
             {
                 continue;
             }
-            buttonsAndId.put("current",currAction);
 
             WordButton btn = new WordButton(this,words[i],dbManager);
             if(isUserWantMeanings)
@@ -424,7 +421,6 @@ public class SortingWordsPage extends AppCompatActivity {
                     lockableScrollView.post(
                             () -> lockableScrollView.scrollTo(0, (int)currentHeight[0]));
                 });
-                //currentHeight+=btn.getHeight();
             }
 
 

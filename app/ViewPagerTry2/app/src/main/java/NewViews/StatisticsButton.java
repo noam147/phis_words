@@ -62,7 +62,7 @@ public class StatisticsButton extends androidx.appcompat.widget.AppCompatButton 
         if (finalAction > OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS) {
             finalAction = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
         }
-        intent.putExtra("action", finalAction + 2); // Maps star count to action (TODO: Verify mapping)
+        intent.putExtra("action", finalAction + 2);
         intent.putExtra("wordToMark", word);
         // Indicates that this intent is for summarizing multiple-answer questions
         intent.putExtra("intentId", OperationsAndOtherUsefull.SUMMERIZE_MULTIPLE_ANSWERS_QUESIOTNS_INTENT_ID);

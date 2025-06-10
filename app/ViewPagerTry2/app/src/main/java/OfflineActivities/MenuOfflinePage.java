@@ -1,6 +1,7 @@
 
 package OfflineActivities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -90,13 +91,19 @@ public class MenuOfflinePage extends AppCompatActivity {
                     DailyWord word_meaning = gson.fromJson(response, DailyWord.class);
                     daily_text.setText(word_meaning.word + ": " + word_meaning.meaning);
                 } catch (Exception e) {
-                    // Handle JSON parsing error (e.g., log the error)
-                }
+
+            }
             }
 
             @Override
             public void onFailure(Exception e) {
-                // Handle API request failure (e.g., log the error or display a default message)
+                //delays the dialog until the layout is ready
+                findViewById(android.R.id.content).post(() -> {
+                    new AlertDialog.Builder(MenuOfflinePage.this)
+                            .setMessage("No internet connection. no daily word for you :(")
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
             }
         });
     }
