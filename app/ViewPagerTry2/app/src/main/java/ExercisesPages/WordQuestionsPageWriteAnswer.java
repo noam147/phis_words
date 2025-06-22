@@ -155,12 +155,8 @@ public class WordQuestionsPageWriteAnswer extends BaseActivityForGameQuestions {
         // Placeholder for future functionality
     }
 
-    /**
-     * Placeholder for continuing to the next question.
-     * Not currently used.
-     */
-    private void continueButtonClicked() {
-        // Placeholder for future functionality
+    public void continueButtonClicked(View view) {
+        continueButtonClicked(view, false);
     }
 
     /**
