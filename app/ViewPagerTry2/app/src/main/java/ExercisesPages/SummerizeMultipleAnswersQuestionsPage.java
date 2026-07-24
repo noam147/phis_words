@@ -7,6 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ImageView;
+import com.google.android.material.card.MaterialCardView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import androidx.core.content.ContextCompat;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,17 +80,35 @@ public class SummerizeMultipleAnswersQuestionsPage extends AppCompatActivity {
         view.setLayoutParams(params);
         buttonsContainer.addView(view);
     }
-    private void createButton(boolean toCreateRight,AfterAnswerQuestionDetails currentWord)
-    {
-        if(toCreateRight != currentWord.getIsUserRight())
-        {
+    private void createButton(boolean toCreateRight, AfterAnswerQuestionDetails currentWord) {
+        if (toCreateRight != currentWord.getIsUserRight()) {
             return;
         }
-        StatisticsButton btn = new StatisticsButton(this,currentWord);
-        btn.setAllCaps(false);
-        btn.setText(currentWord.getQuestionDetails().getWordProperties().getWord()+": "+currentWord.getQuestionDetails().getWordProperties().getMeaning());
-        btn.setBackgroundColor(Color.WHITE);
-        addViewIntoLinear(btn,false);
+
+        View itemView = LayoutInflater.from(this).inflate(R.layout.item_summary_word, null);
+        TextView wordText = itemView.findViewById(R.id.wordText);
+        TextView meaningText = itemView.findViewById(R.id.meaningText);
+        ImageView statusIcon = itemView.findViewById(R.id.statusIcon);
+        View itemContainer = itemView.findViewById(R.id.itemContainer);
+
+        wordText.setText(currentWord.getQuestionDetails().getWordProperties().getWord());
+        meaningText.setText(currentWord.getQuestionDetails().getWordProperties().getMeaning());
+
+        if (currentWord.getIsUserRight()) {
+            statusIcon.setImageResource(R.drawable.baseline_full_star_24);
+            statusIcon.setColorFilter(ContextCompat.getColor(this, R.color.green));
+            itemContainer.setBackgroundColor(ContextCompat.getColor(this, R.color.correct_bg));
+        } else {
+            statusIcon.setImageResource(R.drawable.baseline_close_24);
+            statusIcon.setColorFilter(ContextCompat.getColor(this, R.color.red));
+            itemContainer.setBackgroundColor(ContextCompat.getColor(this, R.color.incorrect_bg));
+        }
+
+        itemView.setOnClickListener(v -> {
+            // Optional: Handle click to show more details or play audio
+        });
+
+        addViewIntoLinear(itemView, false);
     }
     private FinalWordProperties[] getWordProArr(AfterAnswerQuestionDetails[] words)
     {
@@ -97,60 +120,87 @@ public class SummerizeMultipleAnswersQuestionsPage extends AppCompatActivity {
         }
         return arr;
     }
-    private void createButtons(AfterAnswerQuestionDetails[] words)
-    {
+    private void createButtons(AfterAnswerQuestionDetails[] words) {
         LinearLayout buttonsContainer = findViewById(R.id.linearLayoutButtonContainer4);
-        // Clear previous buttons (optional, if you want to reset the container)
         buttonsContainer.removeAllViews();
-        //add title for know words
+
+        // Add Section Header for Correct Answers
         TextView wordsKnow = new TextView(this);
-        wordsKnow.setText("מילים שידעת:");
-        wordsKnow.setTextSize(30);
-        wordsKnow.setBackgroundColor(Color.RED);
-        addViewIntoLinear(wordsKnow,true);
-        for(int i =0; i <words.length;i++)
-        {
-            createButton(true,words[i]);
+        wordsKnow.setText("מילים שידעת");
+        wordsKnow.setTextSize(20);
+        wordsKnow.setPadding(40, 40, 40, 20);
+        wordsKnow.setTextColor(ContextCompat.getColor(this, R.color.green));
+        wordsKnow.setTypeface(null, android.graphics.Typeface.BOLD);
+        buttonsContainer.addView(wordsKnow);
+
+        for (int i = 0; i < words.length; i++) {
+            createButton(true, words[i]);
         }
+
+        // Add Section Header for Incorrect Answers
         TextView wordsDoesntKnow = new TextView(this);
-        wordsDoesntKnow.setText("מילים שטעית:");
-        wordsDoesntKnow.setTextSize(30);
-        wordsDoesntKnow.setBackgroundColor(Color.RED);
-        addViewIntoLinear(wordsDoesntKnow,true);
-        for(int i =0; i <words.length;i++)
-        {
-            createButton(false,words[i]);
+        wordsDoesntKnow.setText("מילים שטעית");
+        wordsDoesntKnow.setTextSize(20);
+        wordsDoesntKnow.setPadding(40, 40, 40, 20);
+        wordsDoesntKnow.setTextColor(ContextCompat.getColor(this, R.color.red));
+        wordsDoesntKnow.setTypeface(null, android.graphics.Typeface.BOLD);
+        buttonsContainer.addView(wordsDoesntKnow);
+
+        for (int i = 0; i < words.length; i++) {
+            createButton(false, words[i]);
         }
+
         FinalWordProperties[] previousQuestionsArr = getWordProArr(words);
 
-        //btn - another game with same words
-        Button playAgainSame = new Button(this);
-        playAgainSame.setText("play again with same words");
-        playAgainSame.setBackgroundColor(Color.GREEN);
-        addViewIntoLinear(playAgainSame,true);
+        // Action Buttons Container
+        LinearLayout actionsLayout = new LinearLayout(this);
+        actionsLayout.setOrientation(LinearLayout.VERTICAL);
+        actionsLayout.setPadding(32, 48, 32, 32);
+
+        // btn - another game with same words
+        Button playAgainSame = new com.google.android.material.button.MaterialButton(this);
+        playAgainSame.setText("שחק שוב עם אותן מילים");
+        playAgainSame.setAllCaps(false);
+        LinearLayout.LayoutParams paramsSame = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        playAgainSame.setLayoutParams(paramsSame);
+        actionsLayout.addView(playAgainSame);
+
         playAgainSame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SummerizeMultipleAnswersQuestionsPage.this, WordQuestionsPageMultipleAnswers.class);
-                intent.putExtra("questions",previousQuestionsArr);
+                intent.putExtra("questions", previousQuestionsArr);
                 startActivity(intent);
                 finish();
             }
         });
-        //btn - another game with new words
-        Button playAgainDiffrent = new Button(this);
-        playAgainDiffrent.setText("play again with diffrent words");
-        playAgainDiffrent.setBackgroundColor(Color.GREEN);
-        addViewIntoLinear(playAgainDiffrent,true);
+
+        // btn - another game with new words
+        Button playAgainDiffrent = new com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        playAgainDiffrent.setText("שחק שוב עם מילים חדשות");
+        playAgainDiffrent.setAllCaps(false);
+        LinearLayout.LayoutParams paramsDiff = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        paramsDiff.topMargin = 16;
+        playAgainDiffrent.setLayoutParams(paramsDiff);
+        actionsLayout.addView(playAgainDiffrent);
+
         playAgainDiffrent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SummerizeMultipleAnswersQuestionsPage.this, WordQuestionsPageMultipleAnswers.class);
-                intent.putExtra("amount",words.length);
+                intent.putExtra("amount", words.length);
                 startActivity(intent);
                 finish();
             }
         });
+
+        buttonsContainer.addView(actionsLayout);
     }
     public void exitImgButtonClick5(View view)
     {
