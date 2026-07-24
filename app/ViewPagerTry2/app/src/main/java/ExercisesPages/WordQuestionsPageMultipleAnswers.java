@@ -64,7 +64,8 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
         for(int i =0; i <btns.length;i++)
         {
             String btnText = btns[i].getText().toString();
-            if(btnText == m_questions[m_counter].getWordProperties().getMeaning()) {
+            String rightAnswer = m_isFlipped ? m_questions[m_counter].getWordProperties().getWord() : m_questions[m_counter].getWordProperties().getMeaning();
+            if(btnText.equals(rightAnswer)) {
                 return btns[i];
             }
         }
@@ -80,7 +81,8 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
         //Button rightBtn = null;
         String btnText = btn.getText().toString();
         boolean isWrong = false;
-        if(btnText == m_questions[m_counter].getWordProperties().getMeaning())
+        String rightAnswer = m_isFlipped ? m_questions[m_counter].getWordProperties().getWord() : m_questions[m_counter].getWordProperties().getMeaning();
+        if(btnText.equals(rightAnswer))
         {
            // btn.animate();
             btn.setBackgroundColor(Color.GREEN);
@@ -147,15 +149,17 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
         updateQuestionsTrackerTextView();
         Question currentQuestion = (Question) m_questions[m_counter];
         TextView questionTextView = findViewById(R.id.questionTextView);
-        questionTextView.setText(currentQuestion.getWordProperties().getWord());
+        String questionText = m_isFlipped ? currentQuestion.getWordProperties().getMeaning() : currentQuestion.getWordProperties().getWord();
+        questionTextView.setText(questionText);
         Random random = new Random();
         int randNum = random.nextInt(4);
         int wrongAnswersCounter =0;
+        String rightAnswer = m_isFlipped ? currentQuestion.getWordProperties().getWord() : currentQuestion.getWordProperties().getMeaning();
         for(int i =0; i <currentQuestion.getAnswers().length+1;i++)
         {
             if(i == randNum)
             {
-                m_listOfAnswerButtons[i].setText(currentQuestion.getWordProperties().getMeaning());
+                m_listOfAnswerButtons[i].setText(rightAnswer);
             }
             else
             {
@@ -181,14 +185,14 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
         {
             FinalWordProperties[] words = m_questions;
             OperationsAndOtherUsefull.shffuleArr(words);//shuffle the questions
-            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager);//convert to Question type
+            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager, m_isFlipped);//convert to Question type
             return;
         }
         if(m_unit == 0 || m_category == 0)
         {
 
             FinalWordProperties[] words = dbManager.getRandomEnglishWords(m_amountOfQuestions,m_isEnglish);
-            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager);
+            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager, m_isFlipped);
         }
         else
         {
@@ -197,7 +201,7 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
             //with current mode of words
             FinalWordProperties[] words = OperationsAndOtherUsefull.getWordsOfUnitByAction(m_unit,m_category,m_isEnglish,m_action,dbManager);
             OperationsAndOtherUsefull.shffuleArr(words);//shuffle the questions
-            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager);
+            m_questions = OperationsAndOtherUsefull.getRandQuestions(m_isEnglish,words,dbManager, m_isFlipped);
         }
 
     }

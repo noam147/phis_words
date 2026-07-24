@@ -130,9 +130,9 @@ public void exitImgBtnWriteAnswerClicked(View view)
     public void setSendBtnClicked(View view) {
         m_answerInputLayout.setError(null);
         String answer = m_userAnswerEditText.getText().toString();
-        String meaning = m_questions[m_counter].getWordProperties().getMeaning();
+        String rightAnswer = m_isFlipped ? m_questions[m_counter].getWordProperties().getWord() : m_questions[m_counter].getWordProperties().getMeaning();
 
-        if (answerIsInMeaning(answer, meaning)) {
+        if (answerIsInMeaning(answer, rightAnswer)) {
             whenUserAnsweredRight();
         } else {
             whenUserAnsweredWrong();
@@ -180,7 +180,8 @@ public void exitImgBtnWriteAnswerClicked(View view)
     }
 
     private void updateUIForQuestion() {
-        m_questionTextView.setText(this.m_questions[m_counter].getWordProperties().getWord());
+        String questionText = m_isFlipped ? m_questions[m_counter].getWordProperties().getMeaning() : m_questions[m_counter].getWordProperties().getWord();
+        m_questionTextView.setText(questionText);
         m_userAnswerEditText.setText("");
         m_answerInputLayout.setError(null);
         m_answerInputLayout.setHelperText(null);
@@ -195,7 +196,8 @@ public void exitImgBtnWriteAnswerClicked(View view)
     private void whenUserAnsweredWrong() {
         m_answerInputLayout.setError("Incorrect Answer");
         m_solutionInputLayout.setVisibility(View.VISIBLE);
-        m_solutionEditText.setText(m_questions[m_counter].getWordProperties().getMeaning());
+        String rightAnswer = m_isFlipped ? m_questions[m_counter].getWordProperties().getWord() : m_questions[m_counter].getWordProperties().getMeaning();
+        m_solutionEditText.setText(rightAnswer);
         m_wrongAnswerActions.setVisibility(View.VISIBLE);
         m_answerBtn.setVisibility(View.GONE);
     }

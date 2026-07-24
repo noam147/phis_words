@@ -22,12 +22,14 @@ import android.view.View;
 import java.util.ArrayList;
 
 import OfflineActivities.SortingWordsPage;
+import files.SettingsPrefs;
 import files.XpPointsTracker;
 
 public class BaseActivityForGameQuestions extends AppCompatActivity {
 
     protected int m_amountOfQuestions;
     protected boolean m_isEnglish;
+    protected boolean m_isFlipped;
     protected int m_action;
     protected DBManager dbManager;
 
@@ -57,6 +59,7 @@ public class BaseActivityForGameQuestions extends AppCompatActivity {
         intent.putExtra("category", m_category);
         intent.putExtra("amount", m_amountOfQuestions);
         intent.putExtra("isEnglish", m_isEnglish);
+        intent.putExtra("isFlipped", m_isFlipped);
     }
     private void atStartOfExercisesPages()
     {
@@ -68,8 +71,9 @@ public class BaseActivityForGameQuestions extends AppCompatActivity {
             m_questions = null;
         }
 
-        m_amountOfQuestions = getIntent().getIntExtra("amount", OperationsAndOtherUsefull.BASE_AMOUNT_OF_QUESTIONS_IN_EXERCISE);
+        m_amountOfQuestions = getIntent().getIntExtra("amount", SettingsPrefs.getQuestionsAmount(this));
         m_isEnglish = getIntent().getBooleanExtra("isEnglish",true);
+        m_isFlipped = getIntent().getBooleanExtra("isFlipped", SettingsPrefs.isFlipped(this));
         m_unit = getIntent().getIntExtra("unit",0);
         m_category = getIntent().getIntExtra("category",0);
         m_action = getIntent().getIntExtra("action", OperationsAndOtherUsefull.ALL_WORDS_ACTION);

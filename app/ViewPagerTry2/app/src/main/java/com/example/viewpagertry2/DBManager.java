@@ -463,19 +463,20 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
 
-    public String[] getThreeRandomAnswers(boolean isEnglish, String rightanswer) {
+    public String[] getThreeRandomAnswers(boolean isEnglish, String exclusionWord, boolean isFlipped) {
 
+        String columnToSelect = isFlipped ? "word" : "meaning";
         String query = "";
         if (isEnglish) {
-            query = "SELECT meaning FROM englishWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
+            query = "SELECT " + columnToSelect + " FROM englishWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
         } else {
-            query = "SELECT meaning FROM hebrewWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
+            query = "SELECT " + columnToSelect + " FROM hebrewWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
         }
         String[] answers = new String[3];
         Cursor cursor = null;
         try {
             // Execute the query
-            cursor = this.getReadableDatabase().rawQuery(query, new String[]{rightanswer});
+            cursor = this.getReadableDatabase().rawQuery(query, new String[]{exclusionWord});
 
             // Iterate over the cursor to get the words
             int i = 0;
@@ -491,6 +492,11 @@ public class DBManager extends SQLiteOpenHelper {
             }
         }
         return answers;
+    }
+
+    @Deprecated
+    public String[] getThreeRandomAnswers(boolean isEnglish, String rightanswer) {
+        return getThreeRandomAnswers(isEnglish, rightanswer, false);
     }
 
     // Get random English words with their details

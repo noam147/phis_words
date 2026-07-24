@@ -26,6 +26,7 @@ import API.DailyWord;
 import API.ReqCallback;
 import NewViews.TextProgressBar;
 import files.HistoryOfUnitAndCategoryPrefs;
+import files.SettingsPrefs;
 import files.UnitAndCaetogryHistoryHelper;
 import files.XpPointsTracker;
 
@@ -128,6 +129,11 @@ public class MenuOfflinePage extends AppCompatActivity {
         XpPointsTracker.getImgOfCurrentRank2(this,imageView);
         int currLevel = XpPointsTracker.getCurrentLevel();
         levelTextView.setText(Integer.toString(currLevel));
+
+        findViewById(R.id.imageButton5).setOnClickListener(v -> {
+            Intent intent = new Intent(MenuOfflinePage.this, SettingsActivity.class);
+            startActivity(intent);
+        });
     }
     private void onStartPage()
     {

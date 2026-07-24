@@ -103,11 +103,17 @@ public class OperationsAndOtherUsefull {
 
     public static Question[] getRandQuestions(boolean isEnglish, FinalWordProperties[] finalWordProperties, DBManager dbManager)
     {
+        return getRandQuestions(isEnglish, finalWordProperties, dbManager, false);
+    }
+
+    public static Question[] getRandQuestions(boolean isEnglish, FinalWordProperties[] finalWordProperties, DBManager dbManager, boolean isFlipped)
+    {
         //to operation
         Question[] questions = new Question[finalWordProperties.length];
         for(int i =0; i <finalWordProperties.length;i++)
         {
-            String[] wrongAnswers = dbManager.getThreeRandomAnswers(isEnglish,finalWordProperties[i].getWordProperties().getMeaning());
+            String exclusionWord = finalWordProperties[i].getWordProperties().getWord();
+            String[] wrongAnswers = dbManager.getThreeRandomAnswers(isEnglish, exclusionWord, isFlipped);
             Question currQuestion = new Question(wrongAnswers,finalWordProperties[i]);
             questions[i] = currQuestion;
         }
