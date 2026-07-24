@@ -113,7 +113,8 @@ public class BaseActivityForGameQuestions extends AppCompatActivity {
     public void whenAudioImgButtonClicked(View view)
     {
         int wordId =m_questions[m_counter].getWordProperties().getWord_id();
-        MakeViewPlayAudio.playRecordingOfWord(this,wordId);
+        String word = m_questions[m_counter].getWordProperties().getWord();
+        MakeViewPlayAudio.playRecordingOfWord(this,wordId, word);
     }
     protected void whenFinishQuestions()
     {

@@ -94,7 +94,7 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
 
         // Add the ImageButton to the container with specified layout parameters
         container.addView(playAudioImgButton, params);
-        playAudioImgButton.setOnClickListener(v -> MakeViewPlayAudio.playRecordingOfWord(this.getContext(),this.finalWordProperties.getWordProperties().getWord_id()));
+        playAudioImgButton.setOnClickListener(v -> MakeViewPlayAudio.playRecordingOfWord(this.getContext(),this.finalWordProperties.getWordProperties().getWord_id(), this.finalWordProperties.getWordProperties().getWord()));
 
         // Set click listener for the ImageButton
     }

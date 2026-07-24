@@ -10,7 +10,7 @@ public class MakeViewPlayAudio {
     public static MediaPlayer mediaPlayer;
     public static MediaPlayer mediaPlayerForWords;
 
-    public static void playRecordingOfWord(Context context, int recId)
+    public static void playRecordingOfWord(Context context, int recId, String word)
     {
         String fileName = "recordings/" + recId + ".mp3";
         AssetManager assetManager = context.getAssets();

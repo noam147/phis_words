@@ -60,7 +60,7 @@ public class MenuOfflinePage extends AppCompatActivity {
         onStartPage();
 
         get_daily_word();
-        MakeViewPlayAudio.playRecording(this,"composeapptry2melody.mp3",true);
+        //MakeViewPlayAudio.playRecording(this,"composeapptry2melody.mp3",true);
         //XpPointsTracker.resetAmount(this);
     }
     private void get_daily_word()

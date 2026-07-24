@@ -26,7 +26,7 @@ import ExercisesPages.Question;
 public class DBManager extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "words.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_PATH = "/data/data/com.example.viewpagertry2/databases/";
+    private static String DATABASE_PATH = "";
     private final Context context;
 
 
@@ -34,6 +34,7 @@ public class DBManager extends SQLiteOpenHelper {
     public DBManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
+        this.DATABASE_PATH = context.getDatabasePath("words.db").getParent() + "/";
         // Copy the database if it doesn't exist
         try {
             copyDatabaseIfNeeded(false);
