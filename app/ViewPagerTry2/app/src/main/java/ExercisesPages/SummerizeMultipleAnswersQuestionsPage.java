@@ -20,6 +20,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewpagertry2.FinalWordProperties;
+import com.example.viewpagertry2.OperationsAndOtherUsefull;
+import com.example.viewpagertry2.UnitAndCategoryOfWord;
+import OfflineActivities.SortingWordsPage;
 import com.example.viewpagertry2.R;
 import NewViews.StatisticsButton;
 
@@ -105,7 +108,21 @@ public class SummerizeMultipleAnswersQuestionsPage extends AppCompatActivity {
         }
 
         itemView.setOnClickListener(v -> {
-            // Optional: Handle click to show more details or play audio
+            Intent intent = new Intent(SummerizeMultipleAnswersQuestionsPage.this, SortingWordsPage.class);
+            UnitAndCategoryOfWord uac = new UnitAndCategoryOfWord(currentWord.getQuestionDetails().getWordProperties().getWord_id());
+            intent.putExtra("unit", uac.getUnit());
+            intent.putExtra("category", uac.getCategory());
+            intent.putExtra("wordToMark", currentWord.getQuestionDetails().getWordProperties().getWord());
+
+            int stars = currentWord.getQuestionDetails().getUserDetailsOnWords().getAmountOfStars();
+            int action;
+            if (stars > 0) action = OperationsAndOtherUsefull.DO_KNOW_WORDS;
+            else if (stars == -1) action = OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS;
+            else action = OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS;
+
+            intent.putExtra("action", action);
+            intent.putExtra("returnToSummary", true);
+            startActivity(intent);
         });
 
         addViewIntoLinear(itemView, false);

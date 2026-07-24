@@ -362,8 +362,6 @@ public class SortingWordsPage extends AppCompatActivity {
         ArrayList<WordButton> wordButtonArrayList = new ArrayList<>();
         //should also take the text and phrase - later on
         Map<String, Integer> buttonsAndId = new HashMap<>();
-        final float[] currentHeight = {0};
-        boolean toKeepIncrease = true;
         //the סדר is matter!
         int[] arrOfButtonId = new int[3];
         arrOfButtonId[0] = R.id.wordsThatUserDOESNTKnowButton;
@@ -410,18 +408,10 @@ public class SortingWordsPage extends AppCompatActivity {
             if(words[i].getWordProperties().getWord().equals(wordToMark))
             {
                 btn.setBackgroundColor(ContextCompat.getColor(this, R.color.green));
-                toKeepIncrease = false;
-
-            }
-            if(toKeepIncrease)
-            {
-                btn.post(() ->
-                {
-                    currentHeight[0]+=btn.getHeight();
-                    lockableScrollView.post(
-                            () -> lockableScrollView.scrollTo(0, (int)currentHeight[0]));
+                btn.post(() -> {
+                    int scrollToY = btn.getTop() - (lockableScrollView.getHeight() / 2) + (btn.getHeight() / 2);
+                    lockableScrollView.smoothScrollTo(0, Math.max(0, scrollToY));
                 });
-                //currentHeight+=btn.getHeight();
             }
 
 
@@ -433,6 +423,10 @@ public class SortingWordsPage extends AppCompatActivity {
     }
     public void exitImgButtonClick3(View view)
     {
+        if (getIntent().getBooleanExtra("returnToSummary", false)) {
+            finish();
+            return;
+        }
         Intent intent = new Intent(SortingWordsPage.this, MenuOfflinePage.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);//clear all previous pages
         startActivity(intent);
