@@ -1,30 +1,50 @@
-# Walkthrough - Audio Button in Write Minigame
+# walkthrough.artifact.md - Modernized Sort Words UI
 
-I have successfully added an audio playback button to the "Write" minigame. This allows users to hear the word they are translating, improving the learning experience.
+I have modernized the "Sort Words" page by migrating it to Material 3 and using a more efficient `RecyclerView` structure.
 
 ## Changes Made
 
-### UI Enhancements
-- Added a new `ImageButton` to [activity_word_questions_page_write_answer.xml](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/res/layout/activity_word_questions_page_write_answer.xml).
-- The button is placed inside the question card, right below the word.
-- It uses the standard audio icon (`@drawable/baseline_play_audio_img_24`) with the project's primary purple tint.
+### 1. New UI Layouts
+- **[activity_sorting_words_page.xml](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/res/layout/activity_sorting_words_page.xml)**:
+    - Replaced custom scroll logic with a standard `RecyclerView`.
+    - Added a `MaterialToolbar` with centered title and close button.
+    - Added a `TabLayout` for easy switching between "Don't Know", "To Sort", and "Know" categories.
+    - Implemented `FilterChips` for Unit, Category, and "With Meaning" toggle.
+    - Added an `ExtendedFloatingActionButton` for quick access to practice/tests.
+- **[item_sort_word.xml](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/res/layout/item_sort_word.xml)**:
+    - Designed a clean, Material 3 card for each word.
+    - Integrated audio playback and word marking buttons directly into the card.
 
-### Logic Integration
-- The button is linked to the `whenAudioImgButtonClicked` method in the base class `BaseActivityForGameQuestions`.
-- This ensures consistency across different game modes that support audio playback.
+### 2. Logic Implementation & RTL Support
+- **[SortingWordsPage.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/SortingWordsPage.java)**:
+    - **RTL Fix**: Migrated swiping logic from absolute (LEFT/RIGHT) to logical (START/END) directions.
+    - **Memory Sync Fix**: Resolved a bug where swiped words wouldn't show up in the new tab.
+    - **Tab Counts**: Implemented dynamic word counts for each tab.
+    - **Visual Swipe Feedback**: Integrated custom drawing to tint cards while swiping.
+- **[SeacrhWordInDbActivity.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/SeacrhWordInDbActivity.java)**:
+    - **Modernized Search**: Completely refactored to use `RecyclerView` and the new `WordSortAdapter`.
+    - **Unified UI**: Search results now look and act exactly like word cards in the Sorting page.
+    - **Preserved Navigation**: Clicking a search result card correctly navigates to its unit in the `SortingWordsPage`, just like before.
+    - **Load More**: Integrated a modern "Load more results" button at the bottom of the list.
+- **[WordSortAdapter.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/WordSortAdapter.java)**:
+    - **Reusable Component**: Refactored to support click listeners, making it the primary way to display words across the app.
 
-## Search Words Enhancements
-I have also enabled audio and "marked" status buttons for the search results in [SeacrhWordInDbActivity.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/SeacrhWordInDbActivity.java).
+### 3. Cleanup
+- Removed legacy manual button creation and custom dragging logic from `SortingWordsPage`.
+- Simplified `SortingWordsPageWithSpecificWordMarked` as the base class now handles word highlighting and scrolling better.
 
-### Stability Fixes
-- Updated [WordButton.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/NewViews/WordButton.java) to fix a bug where re-ordering views during button injection caused index mismatches.
-- Added null safety checks to `setVisibility` in `WordButton` to prevent crashes when the UI state changes rapidly.
+## Verification
 
-## Verification Results
-
-### Manual Verification
-- The layout was updated to include the `ImageButton` with the correct ID and click listener.
-- The `onClick` handler is inherited from `BaseActivityForGameQuestions`, which is already used and tested in the "Play" game.
+### Manual Test Steps
+1. Open the "Sort Words" page.
+2. Verify the new Material 3 design (Toolbar, Tabs, Chips).
+3. Swipe a word card to the right and observe it moving to the "👍" tab.
+4. Swipe a word card to the left and observe it moving to the "👎" tab.
+5. Toggle the "With Meaning" chip and verify word cards update immediately.
+6. Click the audio icon on a card to hear the pronunciation.
+7. Click the mark icon to add/remove a word from your favorites.
+8. Switch tabs to see filtered words.
+9. Click the "Practice" FAB to start an exercise for the current unit.
 
 > [!TIP]
-> You can now hear the pronunciation of words in the "Write" game by tapping the audio icon on the question card!
+> The swiping interaction is now much more fluid and follows standard Android patterns.

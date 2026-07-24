@@ -1,43 +1,39 @@
 package OfflineActivities;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.viewpagertry2.ButtonDraggableFuncs;
 import com.example.viewpagertry2.DBManager;
 import com.example.viewpagertry2.FinalWordProperties;
-import NewViews.LockableScrollView;
 import com.example.viewpagertry2.OperationsAndOtherUsefull;
 import com.example.viewpagertry2.R;
-import NewViews.WordButton;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import ExercisesPages.WordQuestionsPageMultipleAnswers;
 import files.HistoryOfUnitAndCategoryPrefs;
 
 public class SortingWordsPage extends AppCompatActivity {
-    private int KEEP_UNIT_AND_CATEGORY_AS_IS = -1;
+    private static final int KEEP_UNIT_AND_CATEGORY_AS_IS = -1;
 
     private boolean isUserWantMeanings = true;
     private int currAction;
@@ -47,389 +43,283 @@ public class SortingWordsPage extends AppCompatActivity {
     private DBManager dbManager;
     private String wordToMark = "";
 
-    private FinalWordProperties[] words;
-    private int lenKnowWrods;
-    private int lenDONOTKnowWords;
-    private int lenDONOTDECIDEWords;
-
-
-    // Open the database
-
-
-    protected void setIntentData(Intent intent) {
-        currAction = intent.getIntExtra("action", OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS);
-        if(currAction == OperationsAndOtherUsefull.ALL_WORDS_ACTION)
-        {
-            currAction = OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS;
-        }
-
-        unit = intent.getIntExtra("unit", 1);
-        wordToMark = intent.getStringExtra("wordToMark");
-        category = intent.getIntExtra("category", 1);
-        if(currAction != OperationsAndOtherUsefull.MARKED_WORDS_ACTION)
-        {
-            HistoryOfUnitAndCategoryPrefs.updateUnitAndCategory(this,category,unit);
-        }
-        isEnglish = intent.getBooleanExtra("isEnglish", true);
-        isUserWantMeanings = intent.getBooleanExtra("isUserWantMeanings", true);
-    }
+    private FinalWordProperties[] allWordsInUnit;
+    private WordSortAdapter adapter;
+    private RecyclerView recyclerView;
+    private TabLayout tabLayout;
+    private Chip unitChip, categoryChip, meaningChip;
+    private ExtendedFloatingActionButton testFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_sorting_words_page);
+        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        setVeryTopOfPhoneColor();
         setIntentData(getIntent());
-        Switch withMeaningSwitch = findViewById(R.id.withMeaningSwich);
-        withMeaningSwitch.setChecked(isUserWantMeanings);
-
-        Button chosenButton = findChoseButton();
-        if(chosenButton != null)
-        {
-            chosenButton.setTextSize(20);
-            chosenButton.setBackgroundColor(Color.BLACK);
-        }
-
         dbManager = new DBManager(this);
         dbManager.openDb();
-         //words= dbManager.getRandomEnglishWords(10,isEnglish);
-        if(currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION)
-        {
-            hide_buttons();
-            //when the marked - we so not want to interfare with the unit and category
-            this.unit = KEEP_UNIT_AND_CATEGORY_AS_IS;
-            this.category = KEEP_UNIT_AND_CATEGORY_AS_IS;
-            words = dbManager.getMarkedWords();
+
+        initViews();
+        setupRecyclerView();
+        loadData();
+        setupListeners();
+    }
+
+    private void initViews() {
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> exitImgButtonClick3(v));
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+            toolbar.setTitle("Marked Words");
         }
-        else
-        {
-            words = dbManager.getWordsOfUnit(unit,category,isEnglish);
-        }
 
-        //sort the words alphabeticly:
-        Arrays.sort(words, Comparator.comparing(word -> word.getWordProperties().getWord()));
+        tabLayout = findViewById(R.id.tabLayout);
+        recyclerView = findViewById(R.id.wordsRecyclerView);
+        unitChip = findViewById(R.id.unitChip);
+        categoryChip = findViewById(R.id.categoryChip);
+        meaningChip = findViewById(R.id.meaningChip);
+        testFab = findViewById(R.id.testFab);
 
-        dbManager.closeDb();
-        createButtons(words);
-        //ButtonDraggableFuncs.makeButtonDraggableOnXAxsis(b1);
-        setRedBackroundHieght();
-        setButtonsNames();
-        whenSwitchChange();
+        meaningChip.setChecked(isUserWantMeanings);
+        unitChip.setText("Unit: " + unit);
+        categoryChip.setText("Category: " + category);
 
-
-
-    }
-    private void setVeryTopOfPhoneColor()
-    {
-        Window window = getWindow();
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.red_orange));
-    }
-    private void hide_buttons()
-    {
-        Button categoryBtn = findViewById(R.id.categoryChooseButton);
-        Button unitBtn = findViewById(R.id.currentUnitButton);
-        Button knowWordsButton = findViewById(R.id.wordsThatUserKnowButton);
-        Button doNotknowWordsButton = findViewById(R.id.wordsThatUserDOESNTKnowButton);
-        Button notDecideWordsButton = findViewById(R.id.orgnizeWordsButton);
-        Button testOnUnit = findViewById(R.id.TestOnSpecificUnitButton);
-        categoryBtn.setVisibility(View.GONE);
-        unitBtn.setVisibility(View.GONE);
-        categoryBtn.setVisibility(View.GONE);
-        knowWordsButton.setVisibility(View.GONE);
-        doNotknowWordsButton.setVisibility(View.GONE);
-        notDecideWordsButton.setVisibility(View.GONE);
-        testOnUnit.setVisibility(View.GONE);
-    }
-    public void setButtonsNames()
-    {
-        Button categoryBtn = findViewById(R.id.categoryChooseButton);
-        Button unitBtn = findViewById(R.id.currentUnitButton);
-        categoryBtn.setText("רמה: "+String.valueOf(category));
-        //categoryBtn.setText(category);
-        unitBtn.setText("יחידה למיון:"+String.valueOf(unit));
-
-        Button knowWordsButton = findViewById(R.id.wordsThatUserKnowButton);
-        knowWordsButton.setText(knowWordsButton.getText()+"\n"+String.valueOf(this.lenKnowWrods));
-        Button doNotknowWordsButton = findViewById(R.id.wordsThatUserDOESNTKnowButton);
-        doNotknowWordsButton.setText(doNotknowWordsButton.getText()+"\n"+String.valueOf(this.lenDONOTKnowWords));
-        Button notDecideWordsButton = findViewById(R.id.orgnizeWordsButton);
-        notDecideWordsButton.setText(notDecideWordsButton.getText()+"\n"+String.valueOf(this.lenDONOTDECIDEWords));
-    }
-    public void categoryChooseButtonClicked(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this, CategoryChooser.class);
-        intent.putExtra("isEnglish", isEnglish);
-        intent.putExtra("action",currAction);
-        intent.putExtra("isCategoryChoice",true);
-        intent.putExtra("unit", unit);
-        intent.putExtra("category", category);
-        try {
-            startActivity(intent);
-        }
-        catch (Exception e)
-        {
-            Button btn = findViewById(R.id.wordsThatUserDOESNTKnowButton);
-            btn.setText(e.getMessage());
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+            unitChip.setVisibility(View.GONE);
+            categoryChip.setVisibility(View.GONE);
+            tabLayout.setVisibility(View.GONE);
+        } else {
+            // Map currAction to tab position
+            int tabPos = 1; // Default to "To Sort"
+            if (currAction == OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS) tabPos = 0;
+            else if (currAction == OperationsAndOtherUsefull.DO_KNOW_WORDS) tabPos = 2;
+            tabLayout.selectTab(tabLayout.getTabAt(tabPos));
         }
     }
 
-    private void whenSwitchChange() {
-        Switch withMeaningSwitch = findViewById(R.id.withMeaningSwich);
-        withMeaningSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new WordSortAdapter(dbManager);
+        adapter.setShowMeaning(isUserWantMeanings);
+        recyclerView.setAdapter(adapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START | ItemTouchHelper.END) {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Your code here
-                if (isChecked) {
-                    // Switch is ON
-                    SortingWordsPage.this.isUserWantMeanings = true;  // Replace with your outer class name
-                    createButtons(words);
-                } else {
-                    // Switch is OFF
-                    SortingWordsPage.this.isUserWantMeanings = false; // Replace with your outer class name
-                    createButtons(words);
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onChildDraw(@NonNull android.graphics.Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    WordSortAdapter.WordViewHolder holder = (WordSortAdapter.WordViewHolder) viewHolder;
+                    boolean isRtl = recyclerView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+                    
+                    // Logic: swiping towards END is always towards 👍 (Known)
+                    // In LTR: END is RIGHT (dX > 0)
+                    // In RTL: END is LEFT (dX < 0)
+                    boolean swipingTowardsEnd = (!isRtl && dX > 100) || (isRtl && dX < -100);
+                    boolean swipingTowardsStart = (!isRtl && dX < -100) || (isRtl && dX > 100);
+
+                    if (swipingTowardsEnd) {
+                        holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#E8F5E9")); // Light Green
+                    } else if (swipingTowardsStart) {
+                        holder.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#FFEBEE")); // Light Red
+                    } else {
+                        holder.cardView.setCardBackgroundColor(com.google.android.material.color.MaterialColors.getColor(holder.cardView, com.google.android.material.R.attr.colorSurface));
+                    }
                 }
             }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                WordSortAdapter.WordViewHolder holder = (WordSortAdapter.WordViewHolder) viewHolder;
+                holder.cardView.setCardBackgroundColor(com.google.android.material.color.MaterialColors.getColor(holder.cardView, com.google.android.material.R.attr.colorSurface));
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                FinalWordProperties word = adapter.getWordAt(position);
+                String wordStr = word.getWordProperties().getWord();
+
+                if (direction == ItemTouchHelper.END) {
+                    // Swipe towards END -> Move to KNOW (👍)
+                    dbManager.setWordAsKnowWord(wordStr);
+                    word.getUserDetailsOnWords().setAmountOfStars(1); // Update memory
+                    Toast.makeText(SortingWordsPage.this, "Moved to Known", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Swipe towards START -> Move to DON'T KNOW (👎)
+                    dbManager.setWordAsDoesNOTKnowWord(wordStr);
+                    word.getUserDetailsOnWords().setAmountOfStars(-1); // Update memory
+                    Toast.makeText(SortingWordsPage.this, "Moved to Don't Know", Toast.LENGTH_SHORT).show();
+                }
+                adapter.removeWordAt(position);
+                updateTabCounts();
+            }
         });
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
-    public void TestOnSpecifWordsInUnitButtonClicked(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this, WordQuestionsPageMultipleAnswers.class);
-        if(currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION)
-        {
-            //if this in marked words just get the current words...
-            intent.putExtra("questions",words);
+
+    private void setupListeners() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0: currAction = OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS; break;
+                    case 1: currAction = OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS; break;
+                    case 2: currAction = OperationsAndOtherUsefull.DO_KNOW_WORDS; break;
+                }
+                filterAndDisplayWords();
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        meaningChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isUserWantMeanings = isChecked;
+            adapter.setShowMeaning(isChecked);
+        });
+
+        unitChip.setOnClickListener(v -> unitChooseButtonClicked(v));
+        categoryChip.setOnClickListener(v -> categoryChooseButtonClicked(v));
+        testFab.setOnClickListener(v -> TestOnSpecifWordsInUnitButtonClicked(v));
+    }
+
+    private void loadData() {
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+            allWordsInUnit = dbManager.getMarkedWords();
+        } else {
+            allWordsInUnit = dbManager.getWordsOfUnit(unit, category, isEnglish);
         }
-        else
-        {
+        Arrays.sort(allWordsInUnit, Comparator.comparing(word -> word.getWordProperties().getWord()));
+        filterAndDisplayWords();
+    }
+
+    private void filterAndDisplayWords() {
+        List<FinalWordProperties> filteredList = new ArrayList<>();
+        int scrollToIndex = -1;
+        for (FinalWordProperties word : allWordsInUnit) {
+            int stars = word.getUserDetailsOnWords().getAmountOfStars();
+            boolean matches = false;
+            if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+                matches = true;
+            } else if (currAction == OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS && stars == -1) {
+                matches = true;
+            } else if (currAction == OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS && stars == 0) {
+                matches = true;
+            } else if (currAction == OperationsAndOtherUsefull.DO_KNOW_WORDS && stars > 0) {
+                matches = true;
+            }
+
+            if (matches) {
+                if (wordToMark != null && word.getWordProperties().getWord().equals(wordToMark)) {
+                    scrollToIndex = filteredList.size();
+                }
+                filteredList.add(word);
+            }
+        }
+        adapter.setWords(filteredList);
+        adapter.setHighlightedWord(wordToMark);
+        if (scrollToIndex != -1) {
+            recyclerView.scrollToPosition(scrollToIndex);
+        }
+        updateTabCounts();
+    }
+
+    private void updateTabCounts() {
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) return;
+
+        int dontKnow = 0, toSort = 0, know = 0;
+        for (FinalWordProperties word : allWordsInUnit) {
+            int stars = word.getUserDetailsOnWords().getAmountOfStars();
+            if (stars == -1) dontKnow++;
+            else if (stars == 0) toSort++;
+            else if (stars > 0) know++;
+        }
+
+        TabLayout.Tab tab0 = tabLayout.getTabAt(0);
+        TabLayout.Tab tab1 = tabLayout.getTabAt(1);
+        TabLayout.Tab tab2 = tabLayout.getTabAt(2);
+        
+        if (tab0 != null) tab0.setText("👎 (" + dontKnow + ")");
+        if (tab1 != null) tab1.setText("To Sort (" + toSort + ")");
+        if (tab2 != null) tab2.setText("👍 (" + know + ")");
+    }
+
+    protected void setIntentData(Intent intent) {
+        currAction = intent.getIntExtra("action", OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS);
+        if (currAction == OperationsAndOtherUsefull.ALL_WORDS_ACTION) {
+            currAction = OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS;
+        }
+
+        unit = intent.getIntExtra("unit", 1);
+        wordToMark = intent.getStringExtra("wordToMark");
+        category = intent.getIntExtra("category", 1);
+        if (currAction != OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+            HistoryOfUnitAndCategoryPrefs.updateUnitAndCategory(this, category, unit);
+        }
+        isEnglish = intent.getBooleanExtra("isEnglish", true);
+        isUserWantMeanings = intent.getBooleanExtra("isUserWantMeanings", true);
+    }
+
+    public void categoryChooseButtonClicked(View view) {
+        Intent intent = new Intent(this, CategoryChooser.class);
+        intent.putExtra("isEnglish", isEnglish);
+        intent.putExtra("action", currAction);
+        intent.putExtra("isCategoryChoice", true);
+        intent.putExtra("unit", unit);
+        intent.putExtra("category", category);
+        startActivity(intent);
+    }
+
+    public void unitChooseButtonClicked(View view) {
+        Intent intent = new Intent(this, CategoryChooser.class);
+        intent.putExtra("isEnglish", isEnglish);
+        intent.putExtra("action", currAction);
+        intent.putExtra("isCategoryChoice", false);
+        intent.putExtra("unit", unit);
+        intent.putExtra("category", category);
+        startActivity(intent);
+    }
+
+    public void TestOnSpecifWordsInUnitButtonClicked(View view) {
+        Intent intent = new Intent(this, WordQuestionsPageMultipleAnswers.class);
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+            intent.putExtra("questions", allWordsInUnit);
+        } else {
             intent.putExtra("unit", unit);
             intent.putExtra("category", category);
         }
         intent.putExtra("isEnglish", isEnglish);
-        intent.putExtra("action",this.currAction);
-        // intent.putExtra("action",currAction);
+        intent.putExtra("action", this.currAction);
         startActivity(intent);
         finish();
     }
-    public void TextButtonClicked(View view)
-    {
-        //maybe go to intent of option to exrecises with an X option
-        Intent intent = new Intent(SortingWordsPage.this, WordQuestionsPageMultipleAnswers.class);
-        intent.putExtra("unit", unit);
-        intent.putExtra("category", category);
-        intent.putExtra("isEnglish", isEnglish);
-        //intent.putExtra("action",this.currAction); - the defult action is all words!
-        startActivity(intent);
-        //finish(); we do not want to finish
-    }
-    public void unitChooseButtonClicked(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this,CategoryChooser.class);
-        intent.putExtra("isEnglish", isEnglish);
-        intent.putExtra("action",currAction);
-        intent.putExtra("isCategoryChoice",false);
-        intent.putExtra("unit", unit);
-        intent.putExtra("category", category);
-        startActivity(intent);
 
-    }
-    private void setRedBackroundHieght()
-    {
-        //to understand
-        View redBackground = findViewById(R.id.redBackgroundView);
-        ScrollView scrollView = findViewById(R.id.buttonsScrollView);
-
-// Get the layout parameters of the ScrollView
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollView.getLayoutParams();
-
-// Retrieve the top margin
-        int topMargin = params.topMargin;
-
-// Set the height of redBackground to the top margin of scrollView
-        redBackground.getLayoutParams().height = topMargin;
-
-// Apply the layout parameters to redBackground
-        redBackground.requestLayout();
-    }
-    public Button findChoseButton()
-    {
-        Button chosenButton = null;
-        Button orgnizeWordsButton = findViewById(R.id.orgnizeWordsButton);
-        Button wordsThatUserDOESNTKnowButton = findViewById(R.id.wordsThatUserDOESNTKnowButton);
-        Button wordsThatUserKnowButton = findViewById(R.id.wordsThatUserKnowButton);
-        if(currAction == 0 || currAction == OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS)
-        {
-            chosenButton = orgnizeWordsButton;
-            //the default is not decide page
-        }
-        else if(currAction == OperationsAndOtherUsefull.DO_KNOW_WORDS)
-        {
-            chosenButton = wordsThatUserKnowButton;
-        }
-        else if(currAction == OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS)
-        {
-            chosenButton = wordsThatUserDOESNTKnowButton;
-        }
-        return chosenButton;
-    }
-    private void putIntoIntent(Intent intent)
-    {
-        intent.putExtra("isEnglish", isEnglish);
-        intent.putExtra("isCategoryChoice",true);
-        if(unit != KEEP_UNIT_AND_CATEGORY_AS_IS && category != KEEP_UNIT_AND_CATEGORY_AS_IS)
-        {
-            intent.putExtra("unit", unit);
-            intent.putExtra("category", category);
-        }
-        intent.putExtra("isUserWantMeanings",this.isUserWantMeanings);
-    }
-    public void wordsThatUserDOESNTKnowButtonClicked(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this, SortingWordsPage.class);
-        intent.putExtra("action",OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS);
-        putIntoIntent(intent);
-        this.finish();
-        startActivity(intent);
-    }
-    public void wordsThatUserKnowButtonClicked(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this, SortingWordsPage.class);
-        intent.putExtra("action",OperationsAndOtherUsefull.DO_KNOW_WORDS);
-        putIntoIntent(intent);
-        this.finish();
-        startActivity(intent);
-    }
-    public void orgnizeWordsButtonCLICKED(View view)
-    {
-        Intent intent = new Intent(SortingWordsPage.this, SortingWordsPage.class);
-        intent.putExtra("action",OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS);
-        putIntoIntent(intent);
-        this.finish();
-        startActivity(intent);
-    }
-    private void addLengthToKnowButtons(int currentWordStars)
-    {
-        if(currentWordStars == 0)
-        {
-            this.lenDONOTDECIDEWords++;
-        }
-        if(currentWordStars ==-1)
-        {
-            this.lenDONOTKnowWords++;
-        }
-        if(currentWordStars >0)
-        {
-            this.lenKnowWrods++;
-        }
-
-    }
-    private boolean isButtonNeedToBeCreate(int currentWordStars)
-    {
-
-        if(currAction == OperationsAndOtherUsefull.DO_NOT_DECIDE_WORDS)
-        {
-            if(currentWordStars != 0)
-            {
-                return false;
-            }
-        }
-        else if(currAction == OperationsAndOtherUsefull.DO_KNOW_WORDS)
-        {
-            //know when there is stars
-            if(currentWordStars <= 0 )
-            {
-                return false;
-            }
-        }
-        else if(currAction == OperationsAndOtherUsefull.DO_NOT_KNOW_WORDS)
-        {
-            if (currentWordStars != -1)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    protected ArrayList<WordButton> createButtons(FinalWordProperties[] words)
-    {
-        ArrayList<WordButton> wordButtonArrayList = new ArrayList<>();
-        //should also take the text and phrase - later on
-        Map<String, Integer> buttonsAndId = new HashMap<>();
-        //the סדר is matter!
-        int[] arrOfButtonId = new int[3];
-        arrOfButtonId[0] = R.id.wordsThatUserDOESNTKnowButton;
-        arrOfButtonId[1] = R.id.orgnizeWordsButton;
-        arrOfButtonId[2] = R.id.wordsThatUserKnowButton;
-
-        LinearLayout buttonsContainer = findViewById(R.id.linearLayoutButtonContainer);
-        LockableScrollView lockableScrollView = findViewById(R.id.buttonsScrollView);
-        // Clear previous buttons (optional, if you want to reset the container)
-        buttonsContainer.removeAllViews();
-        for(int i =0; i <words.length;i++)
-        {
-            int currentAmountOfStars = words[i].getUserDetailsOnWords().getAmountOfStars();
-            addLengthToKnowButtons(currentAmountOfStars);
-            if(!isButtonNeedToBeCreate(currentAmountOfStars))
-            {
-                continue;
-            }
-            buttonsAndId.put("current",currAction);
-
-            WordButton btn = new WordButton(this,words[i],dbManager);
-            if(isUserWantMeanings)
-            {
-                btn.setText(words[i].getWordProperties().getWord()+": "+words[i].getWordProperties().getMeaning());
-            }
-            else {
-                btn.setText(words[i].getWordProperties().getWord());
-            }
-            btn.setBackgroundColor(Color.WHITE);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, // Button width
-                    LinearLayout.LayoutParams.WRAP_CONTENT  // Button height
-            );
-
-            params.setMargins(10, 20, 10, 0); // Add some margins (optional)
-            btn.setLayoutParams(params);
-            ButtonDraggableFuncs buttonDraggableFuncs = new ButtonDraggableFuncs();
-            buttonDraggableFuncs.makeButtonDraggableOnXAxsis(btn,currAction,dbManager,arrOfButtonId,lockableScrollView);
-            //ButtonDraggableFuncs.makeButtonDraggableOnXAxsis(btn,currAction,dbManager,words[i].getWordProperties().getWord(),arrOfButtonId);
-            btn.setAllCaps(false);//for some reason all the words were upper case
-            buttonsContainer.addView(btn);
-            btn.afterAddingToLayout();
-            wordButtonArrayList.add(btn);
-            if(words[i].getWordProperties().getWord().equals(wordToMark))
-            {
-                btn.setBackgroundColor(ContextCompat.getColor(this, R.color.green));
-                btn.post(() -> {
-                    int scrollToY = btn.getTop() - (lockableScrollView.getHeight() / 2) + (btn.getHeight() / 2);
-                    lockableScrollView.smoothScrollTo(0, Math.max(0, scrollToY));
-                });
-            }
-
-
-
-
-        }
-
-        return wordButtonArrayList;
-    }
-    public void exitImgButtonClick3(View view)
-    {
+    public void exitImgButtonClick3(View view) {
         if (getIntent().getBooleanExtra("returnToSummary", false)) {
             finish();
             return;
         }
-        Intent intent = new Intent(SortingWordsPage.this, MenuOfflinePage.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);//clear all previous pages
+        Intent intent = new Intent(this, MenuOfflinePage.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbManager != null) {
+            dbManager.closeDb();
+        }
     }
 }

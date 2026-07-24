@@ -1,179 +1,131 @@
 package OfflineActivities;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.viewpagertry2.DBManager;
 import com.example.viewpagertry2.FinalWordProperties;
 import com.example.viewpagertry2.OperationsAndOtherUsefull;
 import com.example.viewpagertry2.R;
-
 import com.example.viewpagertry2.UnitAndCategoryOfWord;
-import NewViews.WordButton;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class SeacrhWordInDbActivity extends AppCompatActivity {
 
-    DBManager dbManager;
-    FinalWordProperties[] words;
-    String currRegexToSearch = "";
+    private DBManager dbManager;
+    private WordSortAdapter adapter;
+    private RecyclerView recyclerView;
+    private String currRegexToSearch = "";
+    private int currAmount;
 
-
-    int currAmount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_seacrh_word_in_db);
+        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        setVeryTopOfPhoneColor();
+
         dbManager = new DBManager(this);
         dbManager.openDb();
+
+        initViews();
+        setupRecyclerView();
         addTextWatcher();
-        afterTextChanges();
+        
+        // Initial search
+        performSearch();
+    }
+
+    private void initViews() {
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> exitImgButtonClick(v));
+        
+        recyclerView = findViewById(R.id.searchRecyclerView);
+        findViewById(R.id.loadMoreButton).setOnClickListener(v -> {
+            currAmount += OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING;
+            performSearch();
+        });
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new WordSortAdapter(dbManager);
+        recyclerView.setAdapter(adapter);
+
+        adapter.setOnWordClickListener(word -> {
+            UnitAndCategoryOfWord unitAndC = new UnitAndCategoryOfWord(word.getWordProperties().getWord_id());
+            Intent intent = new Intent(SeacrhWordInDbActivity.this, SortingWordsPage.class);
+            intent.putExtra("unit", unitAndC.getUnit());
+            intent.putExtra("category", unitAndC.getCategory());
+            
+            int finalAction = word.getUserDetailsOnWords().getAmountOfStars();
+            if (finalAction > OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS) {
+                finalAction = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
+            }
+            intent.putExtra("action", finalAction + 2);
+            intent.putExtra("wordToMark", word.getWordProperties().getWord());
+            startActivity(intent);
+        });
     }
 
     private void addTextWatcher() {
-        TextInputEditText emailEditText = findViewById(R.id.SearchWordEditText);
-
-// Add a TextWatcher to listen for changes in the TextInputEditText
-        emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // This method is called to notify you that the text is about to change
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // This method is called while the text is being changed
-                // You can check the content of 's' for real-time changes
-                System.out.println("Text changed to: " + s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                afterTextChanges();
-                // This method is called after the text has changed
-                // You can perform any final operations here
+        TextInputEditText searchEditText = findViewById(R.id.SearchWordEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                currAmount = OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING;
+                performSearch();
             }
         });
     }
 
-    private void afterTextChanges() {
-        TextInputEditText SearchWordEditText = findViewById(R.id.SearchWordEditText);
-        currRegexToSearch = SearchWordEditText.getText().toString();
-        words = dbManager.searchWordsBasedOnStart(SearchWordEditText.getText().toString(), OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING);
-        currAmount = words.length;
-        createButtons(words);
-    }
-
-    private void createButtons(FinalWordProperties[] words)
-    {
-        LinearLayout buttonsContainer = findViewById(R.id.linearLayoutButtonContainer2);
-
-        // Clear previous buttons (optional, if you want to reset the container)
-        buttonsContainer.removeAllViews();
-        for (int i = 0; i < words.length; i++) {
-            WordButton btn = new WordButton(this,words[i],this.dbManager);
-            btn.setText(words[i].getWordProperties().getWord() + ": " + words[i].getWordProperties().getMeaning());
-
-
-            btn.setBackgroundColor(Color.WHITE);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, // Button width
-                    LinearLayout.LayoutParams.WRAP_CONTENT  // Button height
-            );
-            params.setMargins(10, 20, 10, 0); // Add some margins (optional)
-            btn.setLayoutParams(params);
-            btn.setAllCaps(false);//for some reason all the words were upper case
-            setListenerToWordButton(btn);
-            buttonsContainer.addView(btn);
-            btn.afterAddingToLayout();
+    private void performSearch() {
+        TextInputEditText searchEditText = findViewById(R.id.SearchWordEditText);
+        currRegexToSearch = searchEditText.getText().toString();
+        
+        FinalWordProperties[] words = dbManager.searchWordsBasedOnStart(currRegexToSearch, currAmount);
+        adapter.setWords(Arrays.asList(words));
+        
+        View loadMore = findViewById(R.id.loadMoreButton);
+        if (words.length >= currAmount && words.length >= OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING) {
+            loadMore.setVisibility(View.VISIBLE);
+        } else {
+            loadMore.setVisibility(View.GONE);
         }
-        if(words.length < OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING)
-        {
-            return;//we do not need this button
-        }
-        Button btn = new Button(this);
-        btn.setText("click to see more results");
-        btn.setBackgroundColor(Color.RED);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, // Button width
-                LinearLayout.LayoutParams.WRAP_CONTENT  // Button height
-        );
-        params.setMargins(10, 40, 10, 0); // Add some margins (optional)
-        btn.setLayoutParams(params);
-        btn.setAllCaps(false);//for some reason all the words were upper case
-        buttonsContainer.addView(btn);
-        setListenerToMoreResultsButton(btn);
-
-
     }
-    private void setListenerToMoreResultsButton(Button button) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currAmount += OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING;
-                words = dbManager.searchWordsBasedOnStart(currRegexToSearch,currAmount);
-                createButtons(words);
-            }
-        });
-    }
-    private void setListenerToWordButton(WordButton button) {
-        int wordId = button.getFinalWordProperties().getWordProperties().getWord_id();
-        String word = button.getFinalWordProperties().getWordProperties().getWord();
-        int numOfStars= button.getFinalWordProperties().getUserDetailsOnWords().getAmountOfStars();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UnitAndCategoryOfWord unitAndC = new UnitAndCategoryOfWord(wordId);
-                Intent intent = new Intent(SeacrhWordInDbActivity.this, SortingWordsPage.class);
-                intent.putExtra("unit",unitAndC.getUnit());
-                intent.putExtra("category",unitAndC.getCategory());
-                int finalAction = numOfStars;
-                if (finalAction > OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS)
-                {
-                    finalAction = OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS;
-                }
-                intent.putExtra("action",finalAction+2);//change
-                intent.putExtra("wordToMark",word);
-
-
-                startActivity(intent);
-            }
-        });
-    }
-    private void setVeryTopOfPhoneColor()
-    {
-        Window window = getWindow();
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.red_orange));
-    }
-    public void exitImgButtonClick(View view)
-    {
-        Intent intent = new Intent(SeacrhWordInDbActivity.this, MenuOfflinePage.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);//clear all previous pages
+    public void exitImgButtonClick(View view) {
+        Intent intent = new Intent(this, MenuOfflinePage.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbManager != null) {
+            dbManager.closeDb();
+        }
+    }
 }

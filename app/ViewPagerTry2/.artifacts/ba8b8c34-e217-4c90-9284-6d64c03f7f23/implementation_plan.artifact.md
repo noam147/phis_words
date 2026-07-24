@@ -1,31 +1,40 @@
-# Add Audio Button to Search Results
+# implementation_plan.artifact.md - Modernize Search Words UI
 
-This plan outlines the steps to add audio playback buttons to individual words in the search results UI. We will utilize the existing functionality in the `WordButton` custom view.
+Modernize the "Search Words" page using Material 3, `RecyclerView`, and shared components to match the new "Sort Words" experience.
 
 ## User Review Required
 
-> [!NOTE]
-> By enabling the extra features of `WordButton` in the search results, words will also show their "marked" status (add to favorites) in addition to the audio button. This provides a consistent experience with other word lists in the app.
+> [!IMPORTANT]
+> - The search results will now be displayed in the same Material 3 card format as the "Sort Words" page.
+> - The manual button generation will be replaced by a `RecyclerView` for better performance and consistency.
 
 ## Proposed Changes
 
-### Logic
+### [Layouts]
+
+#### [MODIFY] [activity_seacrh_word_in_db.xml](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/res/layout/activity_seacrh_word_in_db.xml)
+- Reconstruct the layout using `CoordinatorLayout`.
+- Add `AppBarLayout` with `MaterialToolbar`.
+- Integrate a `TextInputLayout` with a `TextInputEditText` for searching within the header area.
+- Add a `RecyclerView` for displaying search results.
+
+### [Logic]
 
 #### [MODIFY] [SeacrhWordInDbActivity.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/SeacrhWordInDbActivity.java)
-- In the `createButtons` method, call `btn.afterAddingToLayout()` after each word button is added to the layout. This triggers the dynamic addition of the audio and marked status icons.
+- Refactor to use `WordSortAdapter` (or a more generic version). Since `WordSortAdapter` already handles the card display, audio, and marking, it's perfect for reuse.
+- Update search logic to update the `RecyclerView` adapter instead of clearing/adding views to a `LinearLayout`.
+- Implement a "Load More" mechanism that integrates cleanly with the `RecyclerView` (e.g., a button at the end of the list or automatic pagination).
 
-### Bug Fixes & Stability
+### [Refactoring]
 
-#### [MODIFY] [WordButton.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/NewViews/WordButton.java)
-- **Fix Index Bug**: Update `addButtons()` to capture the view's index in its parent *before* removing it. This ensures the newly created container (containing the word and its icons) is re-inserted at the correct position.
-- **Add Null Checks**: Update `setVisibility()` to check if `imageButton` and `playAudioImgButton` are null before attempting to change their visibility. This prevents crashes if `setVisibility` is called before the extra buttons are initialized.
+#### [MODIFY] [WordSortAdapter.java](file:///C:/dev/phis_words/app/ViewPagerTry2/app/src/main/java/OfflineActivities/WordSortAdapter.java)
+- Add a listener interface to handle clicks on the word cards, as "Search" needs to navigate to the sorting page when a word is clicked.
 
 ## Verification Plan
 
 ### Manual Verification
-1. Open the "Search Words" screen from the main menu.
-2. Type a search query to display results.
-3. Verify that each word result now has an audio icon (on the right) and a "marked" icon (on the left).
-4. Tap the audio icon and confirm the word's pronunciation plays.
-5. Tap the marked icon and verify it updates the word's status in the database.
-6. Verify that clicking the word button itself still takes you to the word's location in the units (existing behavior).
+- Open the "Search Words" page.
+- Verify the Material 3 design matches the "Sort Words" page.
+- Type a word in the search box and verify results appear in the new card format.
+- Click a word card and verify it navigates to the "Sort Words" page for that word's unit.
+- Verify audio playback and word marking still work on the search result cards.
