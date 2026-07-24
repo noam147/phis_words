@@ -449,10 +449,14 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
 
-    public FinalWordProperties[] searchWordsBasedOnStart(String startRegex,int amount)
-    {
-        String query = "Select * from  englishWords where word like ? limit "+String.valueOf(amount);
-        return execQueryOfBothTables(query,new String[]{startRegex + "%"});
+    public FinalWordProperties[] searchWordsBasedOnStart(String startRegex, int amount) {
+        return searchWordsBasedOnStart(startRegex, amount, false);
+    }
+
+    public FinalWordProperties[] searchWordsBasedOnStart(String startRegex, int amount, boolean isFlipped) {
+        String column = isFlipped ? "meaning" : "word";
+        String query = "Select * from englishWords where " + column + " like ? limit " + String.valueOf(amount);
+        return execQueryOfBothTables(query, new String[]{startRegex + "%"});
     }
     public void setWordAsKnowWord(String word) {
         updateAmountOfStarsBasedOnWord(word,OperationsAndOtherUsefull.MIN_KNOW_WORD_AMOUNT_OF_STARS);

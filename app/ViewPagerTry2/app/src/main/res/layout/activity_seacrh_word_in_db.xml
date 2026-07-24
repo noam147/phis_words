@@ -20,7 +20,8 @@
             android:background="?attr/colorSurface"
             app:navigationIcon="@drawable/baseline_close_24"
             app:title="Search Words"
-            app:titleCentered="true" />
+            app:titleCentered="true"
+            app:menu="@menu/menu_search" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/searchTextInputLayout"

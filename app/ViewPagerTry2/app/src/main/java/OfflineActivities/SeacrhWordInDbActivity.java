@@ -32,6 +32,7 @@ public class SeacrhWordInDbActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private String currRegexToSearch = "";
     private int currAmount;
+    private boolean isSearchFlipped = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,15 @@ public class SeacrhWordInDbActivity extends AppCompatActivity {
     private void initViews() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> exitImgButtonClick(v));
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_flip_search) {
+                isSearchFlipped = !isSearchFlipped;
+                updateSearchHint();
+                performSearch();
+                return true;
+            }
+            return false;
+        });
         
         recyclerView = findViewById(R.id.searchRecyclerView);
         findViewById(R.id.loadMoreButton).setOnClickListener(v -> {
@@ -104,7 +114,7 @@ public class SeacrhWordInDbActivity extends AppCompatActivity {
         TextInputEditText searchEditText = findViewById(R.id.SearchWordEditText);
         currRegexToSearch = searchEditText.getText().toString();
         
-        FinalWordProperties[] words = dbManager.searchWordsBasedOnStart(currRegexToSearch, currAmount);
+        FinalWordProperties[] words = dbManager.searchWordsBasedOnStart(currRegexToSearch, currAmount, isSearchFlipped);
         adapter.setWords(Arrays.asList(words));
         
         View loadMore = findViewById(R.id.loadMoreButton);
@@ -112,6 +122,15 @@ public class SeacrhWordInDbActivity extends AppCompatActivity {
             loadMore.setVisibility(View.VISIBLE);
         } else {
             loadMore.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateSearchHint() {
+        com.google.android.material.textfield.TextInputLayout layout = findViewById(R.id.searchTextInputLayout);
+        if (isSearchFlipped) {
+            layout.setHint("Meaning To Search");
+        } else {
+            layout.setHint("Word To Search");
         }
     }
 
