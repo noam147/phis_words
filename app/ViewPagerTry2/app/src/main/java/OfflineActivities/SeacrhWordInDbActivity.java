@@ -106,6 +106,7 @@ public class SeacrhWordInDbActivity extends AppCompatActivity {
             btn.setAllCaps(false);//for some reason all the words were upper case
             setListenerToWordButton(btn);
             buttonsContainer.addView(btn);
+            btn.afterAddingToLayout();
         }
         if(words.length < OperationsAndOtherUsefull.AMOUNT_OF_WORDS_EACH_TIME_SEARCHING)
         {

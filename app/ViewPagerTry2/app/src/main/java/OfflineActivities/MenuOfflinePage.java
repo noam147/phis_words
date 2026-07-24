@@ -57,12 +57,17 @@ public class MenuOfflinePage extends AppCompatActivity {
                 setListernsToShopButtons();
             }
         });
-        onStartPage();
 
         get_daily_word();
         //MakeViewPlayAudio.playRecording(this,"composeapptry2melody.mp3",true);
         //XpPointsTracker.resetAmount(this);
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onStartPage();
+    }
+
     private void get_daily_word()
     {
         TextView daily_text = findViewById(R.id.daily_word_textView);
@@ -222,6 +227,7 @@ public class MenuOfflinePage extends AppCompatActivity {
     public void resetPointsBtnClicked(View view)
     {
         XpPointsTracker.resetAmount(this);
+        progressBar();
     }
     private void shopButtonClicked(View view,int amount)
     {
@@ -231,5 +237,6 @@ public class MenuOfflinePage extends AppCompatActivity {
         float xPosition = view.getX();
         float yPosition = view.getY();
         XpPointsAnimations.animateAndAddXpPoints(amount,view.getContext(),layout,xPosition,yPosition,endX,endY);
+        progressBar();
     }
 }

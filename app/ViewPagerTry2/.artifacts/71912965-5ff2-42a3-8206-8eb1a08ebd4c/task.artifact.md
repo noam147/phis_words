@@ -1,0 +1,11 @@
+- [x] Create and verify icons
+    - [x] `ic_search.xml`
+    - [x] `ic_gamepad.xml`
+- [x] Redesign `activity_menu_offline_page.xml`
+    - [x] Implement Header section (Rank, Level, Progress)
+    - [x] Implement Daily Word Card
+    - [x] Implement Action Buttons layout
+    - [x] Implement Bottom Bar (Currency)
+- [x] Update `MenuOfflinePage.java` if needed
+- [x] Verify deployment and functionality
+- [ ] Create walkthrough

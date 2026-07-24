@@ -10,6 +10,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.google.android.material.textfield.TextInputLayout;
+import NewViews.TextProgressBar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -27,11 +29,15 @@ public class WordQuestionsPageWriteAnswer extends BaseActivityForGameQuestions {
 
     //private int m_counter =0;
     //private FinalWordProperties[] m_wordsQuestions = null;
-    private Button m_overrideBtn;
     private Button m_answerBtn;
-    private Button m_continueBtn;
-    private  EditText m_userAnswerEditText;
+    private EditText m_userAnswerEditText;
     private TextView m_questionTextView;
+    private TextInputLayout m_answerInputLayout;
+    private TextInputLayout m_solutionInputLayout;
+    private TextView m_counterTextView;
+    private View m_wrongAnswerActions;
+    private EditText m_solutionEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,18 +48,18 @@ public class WordQuestionsPageWriteAnswer extends BaseActivityForGameQuestions {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        m_overrideBtn = findViewById(R.id.overrideAnswerButton);
         m_answerBtn = findViewById(R.id.sendAnswerButton);
-        m_continueBtn = findViewById(R.id.continueButton);
-        m_answerBtn.setBackgroundColor(Color.BLACK);
         m_userAnswerEditText = findViewById(R.id.answerMeaningEditText);
         m_questionTextView = findViewById(R.id.WordQuestionTextView);
+        m_answerInputLayout = findViewById(R.id.answerInputLayout);
+        m_solutionInputLayout = findViewById(R.id.solutionInputLayout);
+        m_counterTextView = findViewById(R.id.writeAnswerCounterTextView);
+        m_wrongAnswerActions = findViewById(R.id.wrongAnswerActions);
+        m_solutionEditText = findViewById(R.id.solutionMeaningEditText);
 
-        m_overrideBtn.setVisibility(View.INVISIBLE);
-        m_continueBtn.setVisibility(View.INVISIBLE);
         getVarsAtStart();
         setEnterKeyListener(m_userAnswerEditText);
-        m_questionTextView.setText(this.m_questions[m_counter].getWordProperties().getWord());
+        updateUIForQuestion();
     }
     private void setEnterKeyListener(EditText editText) {
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -120,106 +126,80 @@ public void exitImgBtnWriteAnswerClicked(View view)
 
 
 }
-private void onAnswerClicked(View view)
-    {
-        //get edit text disabled
-        //get button text to i was correct/i was not correct
-        //get button continue visible
 
-    }
-    private void continueButtonClicked()
-    {
-        //get edit text enabled
-        //get button text to send answer
-        //get button continue invisible
-        //get question label to next one
-    }
-    private String getTextFromAnswerTextEdit()
-    {
-        EditText userAnswer =findViewById(R.id.answerMeaningEditText);
-        return userAnswer.getText().toString();
-    }
-    public void setSendBtnClicked(View view)
-    {
-        EditText solution  = findViewById(R.id.solutionMeaningEditText);
-        solution.setText(m_questions[m_counter].getWordProperties().getMeaning());
+    public void setSendBtnClicked(View view) {
+        m_answerInputLayout.setError(null);
+        String answer = m_userAnswerEditText.getText().toString();
+        String meaning = m_questions[m_counter].getWordProperties().getMeaning();
 
-        String answer = getTextFromAnswerTextEdit();
-        if(answerIsInMeaning(answer,m_questions[m_counter].getWordProperties().getMeaning()))
-        {
+        if (answerIsInMeaning(answer, meaning)) {
             whenUserAnsweredRight();
-        }
-        else {
+        } else {
             whenUserAnsweredWrong();
         }
     }
 
-  private void whenUserAnsweredRight()
-  {
-      super.whenUserRight();
-      m_answerBtn.setBackgroundColor(Color.GREEN);
-      //m_overrideBtn.setVisibility(View.VISIBLE);
-      //m_overrideBtn.setText("Override - I Was Incorrect.");
-        //time.sleep(0.5)
-      Handler handler = new Handler();
-      handler.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-              updateToNextQuestion();
+    private void whenUserAnsweredRight() {
+        super.whenUserRight();
+        m_answerInputLayout.setHelperText("Correct!");
+        m_answerBtn.setEnabled(false);
 
-          }
-      }, 1500);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateToNextQuestion();
+            }
+        }, 1500);
+    }
 
-  }
-  public void overrideButtonClicked(View view)
-  {
-      //do that it will consider this as true
-      continueButtonClicked(view,true);
-  }
-  public void continueButtonClicked(View view)
-  {
-      continueButtonClicked(view,false);
-  }
-  public void continueButtonClicked(View view,boolean isTrue)
-  {
-      if(isTrue)
-      {
-          super.whenUserRight();
-      }
-      else
-      {super.whenUserWrong();}
-      // continue will be just if user were wrong
-      m_overrideBtn.setVisibility(View.INVISIBLE);
-      m_continueBtn.setVisibility(View.INVISIBLE);
-      updateToNextQuestion();
-  }
-  private void updateToNextQuestion()
-  {
-      m_answerBtn.setBackgroundColor(Color.BLACK);
-      this.m_counter++;
-      if(m_counter == this.m_questions.length)
-      {
-          super.whenFinishQuestions();
-          return;
-      }
-      m_questionTextView.setText(this.m_questions[m_counter].getWordProperties().getWord());
-      m_userAnswerEditText.setText("");
-      EditText solution  = findViewById(R.id.solutionMeaningEditText);
-      solution.setText("");
+    public void overrideButtonClicked(View view) {
+        continueButtonClicked(view, true);
+    }
 
+    public void continueButtonClicked(View view) {
+        continueButtonClicked(view, false);
+    }
 
-  }
+    public void continueButtonClicked(View view, boolean isTrue) {
+        if (isTrue) {
+            super.whenUserRight();
+        } else {
+            super.whenUserWrong();
+        }
+        updateToNextQuestion();
+    }
 
-  private void whenUserAnsweredWrong()
-  {
+    private void updateToNextQuestion() {
+        this.m_counter++;
+        if (m_counter == this.m_questions.length) {
+            super.whenFinishQuestions();
+            return;
+        }
+        updateUIForQuestion();
+    }
 
-      m_answerBtn.setBackgroundColor(Color.RED);
-      m_overrideBtn.setVisibility(View.VISIBLE);
-      m_overrideBtn.setText("Override - I Was Correct.");
-      m_continueBtn.setVisibility(View.VISIBLE);
-  }
-  private String[] getAllMeaningsOfWords(String meaning)
-  {
+    private void updateUIForQuestion() {
+        m_questionTextView.setText(this.m_questions[m_counter].getWordProperties().getWord());
+        m_userAnswerEditText.setText("");
+        m_answerInputLayout.setError(null);
+        m_answerInputLayout.setHelperText(null);
+        m_solutionInputLayout.setVisibility(View.GONE);
+        m_wrongAnswerActions.setVisibility(View.GONE);
+        m_answerBtn.setVisibility(View.VISIBLE);
+        m_answerBtn.setEnabled(true);
+
+        m_counterTextView.setText((m_counter + 1) + "/" + m_questions.length);
+    }
+
+    private void whenUserAnsweredWrong() {
+        m_answerInputLayout.setError("Incorrect Answer");
+        m_solutionInputLayout.setVisibility(View.VISIBLE);
+        m_solutionEditText.setText(m_questions[m_counter].getWordProperties().getMeaning());
+        m_wrongAnswerActions.setVisibility(View.VISIBLE);
+        m_answerBtn.setVisibility(View.GONE);
+    }
+    private String[] getAllMeaningsOfWords(String meaning) {
       String[] allMeanings = meaning.split(",");
       return allMeanings;
   }

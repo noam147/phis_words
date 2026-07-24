@@ -1,0 +1,6 @@
+- [x] Add Audio ImageButton to `activity_word_questions_page_write_answer.xml`
+- [x] Verify audio button functionality in the "Write" game
+- [x] Finalize walkthrough
+- [x] Enable Audio and Marked buttons in `SeacrhWordInDbActivity.java`
+- [x] Fix stability issues in `WordButton.java`
+- [x] Verify search results UI

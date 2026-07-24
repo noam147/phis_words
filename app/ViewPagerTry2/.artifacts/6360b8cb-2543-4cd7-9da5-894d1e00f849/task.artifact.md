@@ -1,0 +1,4 @@
+- [x] Redesign `activity_word_questions_page_write_answer.xml`
+- [x] Update `WordQuestionsPageWriteAnswer.java` to match new UI and fix typos
+- [x] Verify UI on device/emulator
+- [x] Finalize walkthrough

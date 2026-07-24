@@ -26,8 +26,12 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
     public void setVisibility(int visibility)
     {
         super.setVisibility(visibility);
-        imageButton.setVisibility(visibility);
-        playAudioImgButton.setVisibility(visibility);
+        if (imageButton != null) {
+            imageButton.setVisibility(visibility);
+        }
+        if (playAudioImgButton != null) {
+            playAudioImgButton.setVisibility(visibility);
+        }
         if(visibility == GONE || visibility == INVISIBLE)
         {
 
@@ -57,8 +61,9 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
 
         // Make sure the parent is not null
         ViewGroup parent = (ViewGroup) getParent();
+        int index = -1;
         if (parent != null) {
-            //do this once!
+            index = parent.indexOfChild(this);
             parent.removeView(this); // Remove WordButton from its parent
         }
 
@@ -69,7 +74,6 @@ public class WordButton extends androidx.appcompat.widget.AppCompatButton {
 
         // Check if the parent is not null and add the new container at the same index
         if (parent != null) {
-            int index = parent.indexOfChild(this);
             parent.addView(container, index);
         }
     }

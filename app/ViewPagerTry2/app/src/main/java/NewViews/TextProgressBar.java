@@ -18,26 +18,25 @@ public class TextProgressBar extends ProgressBar {
 
     public TextProgressBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.setScaleY(4f);
         init();
     }
 
     public TextProgressBar(Context context) {
         super(context);
-        this.setScaleY(4f);
         init();
     }
 
     private void init() {
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK); // Set the text color
-        textPaint.setTextSize(17); // Set the text size
-        //textPaint.setTextScaleX(2);
-
+        textPaint.setTextSize(14 * getResources().getDisplayMetrics().density); // Set the text size
+        
         Typeface typeface = ResourcesCompat.getFont(this.getContext(), R.font.font_for_progress_text);
-         textPaint.setTypeface(typeface); // Sets default font in bold
+        if (typeface != null) {
+            textPaint.setTypeface(typeface);
+        }
         textPaint.setAntiAlias(true); // Smooths edges
-        textPaint.setTextScaleX(3f); // Increase for wider text
+        textPaint.setTextScaleX(1.5f); // Reduced from 3f for better readability
     }
 
     public void setText(String text) {
