@@ -100,8 +100,13 @@ public class MenuOfflinePage extends AppCompatActivity {
     {
         Intent intent = new Intent(MenuOfflinePage.this, ShowRankProgressActivity.class);
         startActivity(intent);
+    }
 
-
+    public void backToStartButtonClicked(View view) {
+        Intent intent = new Intent(MenuOfflinePage.this, StartActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void progressBar()

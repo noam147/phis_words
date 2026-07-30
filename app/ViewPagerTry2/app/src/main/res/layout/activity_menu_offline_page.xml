@@ -47,17 +47,30 @@
             app:layout_constraintTop_toTopOf="@+id/progressRankImageView"
             app:layout_constraintVertical_bias="1.0" />
 
+        <ImageButton
+            android:id="@+id/backToStartButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            android:onClick="backToStartButtonClicked"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/progressBar"
+            app:layout_constraintStart_toEndOf="@+id/progressRankImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#49454F" />
+
         <NewViews.TextProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="32dp"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="12dp"
             android:progressTint="@color/cyan"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton5"
-            app:layout_constraintStart_toEndOf="@+id/progressRankImageView"
+            app:layout_constraintStart_toEndOf="@+id/backToStartButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton

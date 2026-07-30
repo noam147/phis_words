@@ -42,6 +42,7 @@ public class SortingWordsPage extends AppCompatActivity {
     private int category;
     private DBManager dbManager;
     private String wordToMark = "";
+    private String customUnitName = null;
 
     private FinalWordProperties[] allWordsInUnit;
     private WordSortAdapter adapter;
@@ -77,6 +78,8 @@ public class SortingWordsPage extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> exitImgButtonClick3(v));
         if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
             toolbar.setTitle("Marked Words");
+        } else if (customUnitName != null) {
+            toolbar.setTitle(customUnitName);
         }
 
         tabLayout = findViewById(R.id.tabLayout);
@@ -90,10 +93,12 @@ public class SortingWordsPage extends AppCompatActivity {
         unitChip.setText("Unit: " + unit);
         categoryChip.setText("Category: " + category);
 
-        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION || customUnitName != null) {
             unitChip.setVisibility(View.GONE);
             categoryChip.setVisibility(View.GONE);
-            tabLayout.setVisibility(View.GONE);
+            if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+                tabLayout.setVisibility(View.GONE);
+            }
         } else {
             // Map currAction to tab position
             int tabPos = 1; // Default to "To Sort"
@@ -197,6 +202,8 @@ public class SortingWordsPage extends AppCompatActivity {
     private void loadData() {
         if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
             allWordsInUnit = dbManager.getMarkedWords();
+        } else if (customUnitName != null) {
+            allWordsInUnit = dbManager.getWordsOfCustomUnit(customUnitName);
         } else {
             allWordsInUnit = dbManager.getWordsOfUnit(unit, category, isEnglish);
         }
@@ -263,8 +270,9 @@ public class SortingWordsPage extends AppCompatActivity {
 
         unit = intent.getIntExtra("unit", 1);
         wordToMark = intent.getStringExtra("wordToMark");
+        customUnitName = intent.getStringExtra("customUnitName");
         category = intent.getIntExtra("category", 1);
-        if (currAction != OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+        if (currAction != OperationsAndOtherUsefull.MARKED_WORDS_ACTION && customUnitName == null) {
             HistoryOfUnitAndCategoryPrefs.updateUnitAndCategory(this, category, unit);
         }
         isEnglish = intent.getBooleanExtra("isEnglish", true);
@@ -293,7 +301,7 @@ public class SortingWordsPage extends AppCompatActivity {
 
     public void TestOnSpecifWordsInUnitButtonClicked(View view) {
         Intent intent = new Intent(this, WordQuestionsPageMultipleAnswers.class);
-        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION) {
+        if (currAction == OperationsAndOtherUsefull.MARKED_WORDS_ACTION || customUnitName != null) {
             intent.putExtra("questions", allWordsInUnit);
         } else {
             intent.putExtra("unit", unit);

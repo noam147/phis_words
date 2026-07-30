@@ -1,5 +1,6 @@
 package com.example.viewpagertry2;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -468,31 +469,45 @@ public class DBManager extends SQLiteOpenHelper {
 
 
     public String[] getThreeRandomAnswers(boolean isEnglish, String exclusionWord, boolean isFlipped) {
+        return getThreeRandomAnswers(isEnglish, exclusionWord, isFlipped, null);
+    }
+
+    public String[] getThreeRandomAnswers(boolean isEnglish, String exclusionWord, boolean isFlipped, String originPlaceFilter) {
 
         String columnToSelect = isFlipped ? "word" : "meaning";
         String query = "";
+        String[] selectionArgs;
+
         if (isEnglish) {
-            query = "SELECT " + columnToSelect + " FROM englishWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
+            query = "SELECT " + columnToSelect + " FROM englishWords WHERE word != ?";
+            if (originPlaceFilter != null) {
+                if (originPlaceFilter.startsWith("custom:")) {
+                    query += " AND origin_place LIKE 'custom:%'";
+                } else {
+                    query += " AND origin_place NOT LIKE 'custom:%'";
+                }
+            }
+            query += " ORDER BY RANDOM() LIMIT 3";
+            selectionArgs = new String[]{exclusionWord};
         } else {
             query = "SELECT " + columnToSelect + " FROM hebrewWords WHERE word != ? ORDER BY RANDOM() LIMIT 3";
+            selectionArgs = new String[]{exclusionWord};
         }
+
         String[] answers = new String[3];
         Cursor cursor = null;
         try {
-            // Execute the query
-            cursor = this.getReadableDatabase().rawQuery(query, new String[]{exclusionWord});
-
-            // Iterate over the cursor to get the words
+            cursor = this.getReadableDatabase().rawQuery(query, selectionArgs);
             int i = 0;
             while (cursor.moveToNext() && i < 3) {
-                answers[i] = cursor.getString(0); // Assuming the word is in the first column
+                answers[i] = cursor.getString(0);
                 i++;
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Handle any exceptions, e.g., logging errors
+            e.printStackTrace();
         } finally {
             if (cursor != null) {
-                cursor.close(); // Always close the cursor to avoid memory leaks
+                cursor.close();
             }
         }
         return answers;
@@ -547,6 +562,60 @@ public class DBManager extends SQLiteOpenHelper {
         }
 
         return execQueryOfBothTables(query,new String[]{String.valueOf(OperationsAndOtherUsefull.WORDS_PER_UNIT),String.valueOf(startId)});
+    }
+
+    public long insertCustomWord(String word, String meaning, String unitName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        
+        // Insert into englishWords
+        ContentValues wordValues = new ContentValues();
+        wordValues.put("word", word);
+        wordValues.put("meaning", meaning);
+        wordValues.put("origin_place", "custom:" + unitName);
+        long wordId = db.insert("englishWords", null, wordValues);
+        
+        // Insert into user_details_on_words
+        ContentValues userValues = new ContentValues();
+        userValues.put("word", word);
+        userValues.put("amountOfStars", 0);
+        userValues.put("knowledge_level", "0");
+        userValues.put("isWordMark", 0);
+        db.insert("user_details_on_words", null, userValues);
+        
+        return wordId;
+    }
+
+    public List<String> getCustomUnits() {
+        List<String> units = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT DISTINCT origin_place FROM englishWords WHERE origin_place LIKE 'custom:%'", null);
+        
+        while (cursor.moveToNext()) {
+            String originPlace = cursor.getString(0);
+            units.add(originPlace.substring(7)); // Remove "custom:"
+        }
+        cursor.close();
+        return units;
+    }
+
+    public FinalWordProperties[] getWordsOfCustomUnit(String unitName) {
+        String query = "SELECT * FROM englishWords WHERE origin_place = ?";
+        return execQueryOfBothTables(query, new String[]{"custom:" + unitName});
+    }
+
+    public void deleteCustomUnit(String unitName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String originPlace = "custom:" + unitName;
+        
+        // Find words to delete from user_details_on_words
+        Cursor cursor = db.query("englishWords", new String[]{"word"}, "origin_place = ?", new String[]{originPlace}, null, null, null);
+        while (cursor.moveToNext()) {
+            String word = cursor.getString(0);
+            db.delete("user_details_on_words", "word = ?", new String[]{word});
+        }
+        cursor.close();
+        
+        db.delete("englishWords", "origin_place = ?", new String[]{originPlace});
     }
 }
 

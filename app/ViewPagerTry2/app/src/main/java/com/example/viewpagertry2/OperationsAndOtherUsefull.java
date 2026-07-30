@@ -113,7 +113,8 @@ public class OperationsAndOtherUsefull {
         for(int i =0; i <finalWordProperties.length;i++)
         {
             String exclusionWord = finalWordProperties[i].getWordProperties().getWord();
-            String[] wrongAnswers = dbManager.getThreeRandomAnswers(isEnglish, exclusionWord, isFlipped);
+            String originPlace = finalWordProperties[i].getWordProperties().getOrigin_place();
+            String[] wrongAnswers = dbManager.getThreeRandomAnswers(isEnglish, exclusionWord, isFlipped, originPlace);
             Question currQuestion = new Question(wrongAnswers,finalWordProperties[i]);
             questions[i] = currQuestion;
         }

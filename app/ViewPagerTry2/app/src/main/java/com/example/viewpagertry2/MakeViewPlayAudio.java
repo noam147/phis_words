@@ -12,6 +12,27 @@ public class MakeViewPlayAudio {
 
     public static void playRecordingOfWord(Context context, int recId, String word)
     {
+        // Try internal storage first (custom words)
+        // preserve Cyrillic in filename match
+        String safeName = word.toLowerCase().replaceAll("[^a-z0-9\\u0400-\\u04FF]", "_").trim();
+        java.io.File internalFile = new java.io.File(context.getFilesDir(), "custom_recordings/" + safeName + ".mp3");
+        
+        if (internalFile.exists()) {
+            try {
+                if (mediaPlayerForWords != null) {
+                    mediaPlayerForWords.release();
+                }
+                mediaPlayerForWords = new MediaPlayer();
+                mediaPlayerForWords.setDataSource(internalFile.getAbsolutePath());
+                mediaPlayerForWords.prepare();
+                mediaPlayerForWords.start();
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Fallback to assets
         String fileName = "recordings/" + recId + ".mp3";
         AssetManager assetManager = context.getAssets();
 

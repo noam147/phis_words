@@ -151,6 +151,13 @@ public class WordQuestionsPageMultipleAnswers extends BaseActivityForGameQuestio
         TextView questionTextView = findViewById(R.id.questionTextView);
         String questionText = m_isFlipped ? currentQuestion.getWordProperties().getMeaning() : currentQuestion.getWordProperties().getWord();
         questionTextView.setText(questionText);
+
+        if (m_isRecordingOnly) {
+            questionTextView.setVisibility(View.INVISIBLE);
+        } else {
+            questionTextView.setVisibility(View.VISIBLE);
+        }
+
         Random random = new Random();
         int randNum = random.nextInt(4);
         int wrongAnswersCounter =0;

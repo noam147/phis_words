@@ -22,6 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private TextInputEditText questionsAmountEditText;
     private SwitchMaterial flipSwitch;
+    private SwitchMaterial recordingOnlySwitch;
     private MaterialButton saveButton;
     private ImageButton backButton;
 
@@ -38,12 +39,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         questionsAmountEditText = findViewById(R.id.questionsAmountEditText);
         flipSwitch = findViewById(R.id.flipSwitch);
+        recordingOnlySwitch = findViewById(R.id.recordingOnlySwitch);
         saveButton = findViewById(R.id.saveButton);
         backButton = findViewById(R.id.backButton);
 
         // Load current settings
         questionsAmountEditText.setText(String.valueOf(SettingsPrefs.getQuestionsAmount(this)));
         flipSwitch.setChecked(SettingsPrefs.isFlipped(this));
+        recordingOnlySwitch.setChecked(SettingsPrefs.isRecordingOnly(this));
 
         saveButton.setOnClickListener(v -> saveSettings());
         backButton.setOnClickListener(v -> finish());
@@ -64,6 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         SettingsPrefs.setQuestionsAmount(this, amount);
         SettingsPrefs.setFlipped(this, flipSwitch.isChecked());
+        SettingsPrefs.setRecordingOnly(this, recordingOnlySwitch.isChecked());
 
         Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show();
         finish();

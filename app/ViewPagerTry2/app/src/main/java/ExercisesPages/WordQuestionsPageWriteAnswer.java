@@ -182,6 +182,13 @@ public void exitImgBtnWriteAnswerClicked(View view)
     private void updateUIForQuestion() {
         String questionText = m_isFlipped ? m_questions[m_counter].getWordProperties().getMeaning() : m_questions[m_counter].getWordProperties().getWord();
         m_questionTextView.setText(questionText);
+
+        if (m_isRecordingOnly) {
+            m_questionTextView.setVisibility(View.INVISIBLE);
+        } else {
+            m_questionTextView.setVisibility(View.VISIBLE);
+        }
+
         m_userAnswerEditText.setText("");
         m_answerInputLayout.setError(null);
         m_answerInputLayout.setHelperText(null);
